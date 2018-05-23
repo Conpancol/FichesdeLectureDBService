@@ -2,10 +2,10 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>co.phystech.aosorio</groupId>
-	<artifactId>fichedbsvc</artifactId>
+	<artifactId>materialsdbsvc</artifactId>
 	<version>1.0</version>
-	<name>fichedbsvc</name>
-	<description>posgresql/mongo DB service for fiche lecture project</description>
+	<name>materialsdbsvc</name>
+	<description>mongo DB service for materials list project</description>
 
 	<build>
 		<plugins>
