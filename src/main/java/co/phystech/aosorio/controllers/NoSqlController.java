@@ -8,6 +8,8 @@ import org.mongodb.morphia.Morphia;
 
 import com.mongodb.MongoClient;
 
+import co.phystech.aosorio.config.Constants;
+
 
 /**
  * @author AOSORIO
@@ -21,9 +23,13 @@ public class NoSqlController {
 	
 	protected NoSqlController() {
 		
+		CfgController dbConf = new CfgController(Constants.CONFIG_FILE);
+		
+		String dbName = dbConf.getDbName();
+		
 		morphia = new Morphia();
 		morphia.mapPackage("co.phystech.aosorio.dbmicrosvc");
-		datastore = morphia.createDatastore(new MongoClient(), "phystech");
+		datastore = morphia.createDatastore(new MongoClient(), dbName);
 		//datastore.ensureIndexes();
 		
 	}

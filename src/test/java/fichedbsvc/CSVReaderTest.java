@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonArray;
 
-import co.phystech.aosorio.models.NewFichePayload;
+import co.phystech.aosorio.models.Materials;
 import co.phystech.aosorio.services.CSVReader;
 
 public class CSVReaderTest {
@@ -24,20 +24,20 @@ public class CSVReaderTest {
 	@Test
 	public void cvsReaderTest() {
 		
-		CSVReader reader = new CSVReader("src/test/resources/testfile_01.csv");
+		CSVReader reader = new CSVReader("src/test/resources/DBMetals.csv");
 		int nrows = 0;
 		
 		try {
 			
-			JsonArray ficheData = (JsonArray) reader.readFile();
-			nrows = ficheData.size();
+			JsonArray metalsData = (JsonArray) reader.readFile();
+			nrows = metalsData.size();
 			ObjectMapper mapper = new ObjectMapper();
 			
-			slf4jLogger.info(ficheData.get(0).toString());
+			slf4jLogger.info(metalsData.get(0).toString());
 			
-			NewFichePayload newFiche = mapper.readValue(ficheData.get(0).toString(), NewFichePayload.class);
+			Materials newFiche = mapper.readValue(metalsData.get(0).toString(), Materials.class);
 		
-			slf4jLogger.info(newFiche.getBook().getAuthor());
+			slf4jLogger.info(newFiche.getItemcode());
 				
 		} catch (FileNotFoundException e) {
 			
@@ -54,7 +54,7 @@ public class CSVReaderTest {
 			slf4jLogger.debug(e.getLocalizedMessage());
 		}
 		
-		assertEquals(15,nrows);
+		assertEquals(5,nrows);
 	}
 
 }

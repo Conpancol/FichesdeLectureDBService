@@ -12,9 +12,6 @@ import static spark.Spark.delete;
 import static spark.Spark.options;
 import static spark.Spark.port;
 
-import co.phystech.aosorio.controllers.BookController;
-import co.phystech.aosorio.controllers.CommentController;
-import co.phystech.aosorio.controllers.FicheController;
 import co.phystech.aosorio.services.AuthorizeSvc;
 import co.phystech.aosorio.services.GeneralSvc;
 import co.phystech.aosorio.services.StatisticsSvc;
@@ -42,36 +39,10 @@ public class Main {
 		if (args.length == 0)
 			before(Routes.USERS + "*", AuthorizeSvc::authorizeUser);
 
-		// ... Fiches
-
-		post(Routes.FICHES, FicheController::createFiche, GeneralSvc.json());
-
-		get(Routes.FICHES, FicheController::readFiches, GeneralSvc.json());
-
-		get(Routes.FICHES + "/:id/:uuid", FicheController::readFiche, GeneralSvc.json());
-
-		put(Routes.FICHES + "/:id/:uuid", FicheController::updateFiche, GeneralSvc.json());
-
-		delete(Routes.FICHES + "/:id/:uuid", FicheController::deleteFiche, GeneralSvc.json());
-
-		//---delete(Routes.FICHES + "all", FicheController::deleteAll, GeneralSvc.json());
-
-		//.... Fiche uploader
-
-		post(Routes.FICHES + "/uploadfiche", FicheController::uploadFiches, GeneralSvc.json());
-
-		// ... Books
-
-		post(Routes.BOOKS, BookController::createBook, GeneralSvc.json());
-
-		get(Routes.BOOKS, BookController::readBooks, GeneralSvc.json());
-
-		// ... Comments
-
-		post(Routes.COMMENTS, CommentController::createComment, GeneralSvc.json());
-
-		get(Routes.COMMENTS, CommentController::readComments, GeneralSvc.json());
-
+		// ... Materials
+		
+		
+		
 		// ... Statistics
 
 		get("/statistics", StatisticsSvc::getBasicStats);

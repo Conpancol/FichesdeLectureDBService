@@ -37,7 +37,7 @@ public class CSVReader {
 
 	BufferedReader buffer = null;
 
-	String cvsSplitBy = ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
+	String cvsSplitBy = "\t";
 	int nrow = 0;
 	int ncol = 0;
 	boolean fileIsRead = false;
@@ -75,30 +75,12 @@ public class CSVReader {
 				String[] data = line.split(cvsSplitBy, -1);
 
 				ncol = data.length;
-
-				if( nrow == 0 ) {								
-					nrow++;
-					continue;
-				}
-				
-				JsonObject bookJson = new JsonObject();
-				bookJson.addProperty("author", data[1]);
-				bookJson.addProperty("title", data[2]);
-				bookJson.addProperty("subTitle", data[3]);
-				bookJson.addProperty("yearPub", data[4]);
-				bookJson.addProperty("editor", data[5]);
-				bookJson.addProperty("collection", data[6]);
-				bookJson.addProperty("pages", data[7]);
-				bookJson.addProperty("language", data[8]);
-				bookJson.addProperty("translation", data[9]);
-				bookJson.addProperty("optional_one", data[10]);
-				
-				JsonObject ficheJson = new JsonObject();
-				ficheJson.addProperty("id", data[0]);
-				ficheJson.add("book", bookJson);
-				ficheJson.add("comments", new JsonArray());
-				
-				jsonArray.add(ficheJson);
+			
+				JsonObject materialJson = new JsonObject();
+				materialJson.addProperty("itemcode", data[1]);
+				materialJson.addProperty("descrption", data[2]);
+		
+				jsonArray.add(materialJson);
 				
 				nrow++;
 			}
