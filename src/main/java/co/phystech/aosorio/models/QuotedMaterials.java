@@ -13,56 +13,56 @@ import org.mongodb.morphia.annotations.Embedded;
 public class QuotedMaterials extends ExtMaterials {
 	
 	
-	private float theoreticalWeight;
-	private float givenWeight;
-	private float unitPrice;
-	private float totalPrice;
+	private double theoreticalWeight;
+	private double givenWeight;
+	private double unitPrice;
+	private double totalPrice;
 	/**
 	 * @return the theoreticalWeight
 	 */
-	public float getTheoreticalWeight() {
+	public double getTheoreticalWeight() {
 		return theoreticalWeight;
 	}
 	/**
-	 * @param theoreticalWeight the theoreticalWeight to set
+	 * @param d the theoreticalWeight to set
 	 */
-	public void setTheoreticalWeight(float theoreticalWeight) {
-		this.theoreticalWeight = theoreticalWeight;
+	public void setTheoreticalWeight(double d) {
+		this.theoreticalWeight = d;
 	}
 	/**
 	 * @return the givenWeight
 	 */
-	public float getGivenWeight() {
+	public double getGivenWeight() {
 		return givenWeight;
 	}
 	/**
-	 * @param givenWeight the givenWeight to set
+	 * @param d the givenWeight to set
 	 */
-	public void setGivenWeight(float givenWeight) {
-		this.givenWeight = givenWeight;
+	public void setGivenWeight(double d) {
+		this.givenWeight = d;
 	}
 	/**
 	 * @return the unitPrice
 	 */
-	public float getUnitPrice() {
+	public double getUnitPrice() {
 		return unitPrice;
 	}
 	/**
 	 * @param unitPrice the unitPrice to set
 	 */
-	public void setUnitPrice(float unitPrice) {
+	public void setUnitPrice(double unitPrice) {
 		this.unitPrice = unitPrice;
 	}
 	/**
 	 * @return the totalPrice
 	 */
-	public float getTotalPrice() {
+	public double getTotalPrice() {
 		return totalPrice;
 	}
 	/**
 	 * @param totalPrice the totalPrice to set
 	 */
-	public void setTotalPrice(float totalPrice) {
+	public void setTotalPrice(double totalPrice) {
 		this.totalPrice = totalPrice;
 	}
 	

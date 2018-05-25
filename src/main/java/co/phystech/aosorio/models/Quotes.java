@@ -1,12 +1,15 @@
 package co.phystech.aosorio.models;
 
-import java.sql.Date;
+import java.util.Date;
+import java.util.List;
 import java.util.ArrayList;
 
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.Embedded;
+import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 
+@Entity("quotes")
 public class Quotes {
 	
 	@Id
@@ -28,8 +31,10 @@ public class Quotes {
 	
 	private String providerName;
 	
+	private String contactName;
+	
 	@Embedded
-	private ArrayList<QuotedMaterials> materialList;
+	private List<QuotedMaterials> materialList = new ArrayList<QuotedMaterials>();
 
 	/**
 	 * @return the id
@@ -160,15 +165,29 @@ public class Quotes {
 	/**
 	 * @return the materialList
 	 */
-	public ArrayList<QuotedMaterials> getMaterialList() {
+	public List<QuotedMaterials> getMaterialList() {
 		return materialList;
 	}
 
 	/**
-	 * @param materialList the materialList to set
+	 * @param ext the materialList to set
 	 */
-	public void setMaterialList(ArrayList<QuotedMaterials> materialList) {
-		this.materialList = materialList;
+	public void setMaterialList(List<QuotedMaterials> ext) {
+		this.materialList = ext;
+	}
+
+	/**
+	 * @return the contactName
+	 */
+	public String getContactName() {
+		return contactName;
+	}
+
+	/**
+	 * @param contactName the contactName to set
+	 */
+	public void setContactName(String contactName) {
+		this.contactName = contactName;
 	}
 	
 	

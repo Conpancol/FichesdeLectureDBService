@@ -34,6 +34,10 @@ public class RequestForQuotes {
 	
 	private String user;
 	
+	private String sender;
+	
+	private String company;
+	
 	@Embedded
 	private List<ExtMaterials> materialList = new ArrayList<ExtMaterials>();;
 
@@ -147,6 +151,34 @@ public class RequestForQuotes {
 	 */
 	public void setMaterialList(List<ExtMaterials> materialList) {
 		this.materialList = materialList;
+	}
+
+	/**
+	 * @return the sender
+	 */
+	public String getSender() {
+		return sender;
+	}
+
+	/**
+	 * @param sender the sender to set
+	 */
+	public void setSender(String sender) {
+		this.sender = sender;
+	}
+
+	/**
+	 * @return the company
+	 */
+	public String getCompany() {
+		return company;
+	}
+
+	/**
+	 * @param company the company to set
+	 */
+	public void setCompany(String company) {
+		this.company = company;
 	}
 	
 	
