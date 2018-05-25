@@ -3,15 +3,9 @@
  */
 package co.phystech.aosorio.services;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sql2o.Connection;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 

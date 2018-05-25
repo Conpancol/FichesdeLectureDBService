@@ -7,12 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import org.sql2o.data.Table;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -78,17 +73,4 @@ public class GeneralSvc {
 		
 	}
 	
-    public static List<Map<String, Object>> tableToList(Table t) {
-    	
-        List<Map<String, Object>> mapList = new ArrayList<>();
-        for (int i = 0; i < t.rows().size(); i++) {
-            Map<String,Object> map = new HashMap<>();
-            for (int j = 0; j < t.columns().size(); j++) {
-                map.put(t.columns().get(j).getName(), t.rows().get(i).getObject(j));
-            }
-            mapList.add(map);
-        }
-        return mapList;
-    }
-
 }

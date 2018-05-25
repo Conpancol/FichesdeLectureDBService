@@ -11,7 +11,7 @@ import org.mongodb.morphia.annotations.Id;
  * @author AOSORIO
  *
  */
-@Entity("material")
+@Entity("mnmaterials")
 public class Materials {
 	
 	@Id

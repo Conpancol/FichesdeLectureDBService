@@ -12,9 +12,6 @@ import org.junit.Test;
 import org.mongodb.morphia.Datastore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sql2o.Sql2o;
-import org.sql2o.converters.UUIDConverter;
-import org.sql2o.quirks.PostgresQuirks;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -25,6 +22,7 @@ import com.google.gson.JsonObject;
 
 import co.phystech.aosorio.config.Constants;
 import co.phystech.aosorio.controllers.CfgController;
+import co.phystech.aosorio.controllers.MaterialsController;
 import co.phystech.aosorio.controllers.NoSqlController;
 import co.phystech.aosorio.models.Materials;
 
@@ -42,11 +40,7 @@ public class ModelTest {
 	
 	@Test
 	public void materialCreationTest() {
-		
-		NoSqlController dbcontroller = NoSqlController.getInstance();
-		
-		final Datastore datastore = dbcontroller.getDatabase();
-	
+					
 		Materials material = new Materials();
 
 		material.setItemcode(itemcode);;
@@ -55,10 +49,9 @@ public class ModelTest {
 		material.setCategory(category);
 		material.setDimensions(dimensions);
 
-		//UUID id = 		
-		//assertTrue(test);
-		//model.deleteBook(id);
-		
+		MaterialsController ctx = new MaterialsController();
+		ctx.create(material);
+
 		slf4jLogger.info("materialCreationTest> success");
 		
 	}
