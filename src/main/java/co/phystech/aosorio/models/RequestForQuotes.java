@@ -3,10 +3,12 @@
  */
 package co.phystech.aosorio.models;
 
-import java.sql.Date;
+import java.util.Date;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.bson.types.ObjectId;
+import org.mongodb.morphia.annotations.Embedded;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 
@@ -32,7 +34,8 @@ public class RequestForQuotes {
 	
 	private String user;
 	
-	private ArrayList<ExtMaterials> materialList;
+	@Embedded
+	private List<ExtMaterials> materialList = new ArrayList<ExtMaterials>();;
 
 	/**
 	 * @return the id
@@ -135,14 +138,14 @@ public class RequestForQuotes {
 	/**
 	 * @return the materialList
 	 */
-	public ArrayList<ExtMaterials> getMaterialList() {
+	public List<ExtMaterials> getMaterialList() {
 		return materialList;
 	}
 
 	/**
 	 * @param materialList the materialList to set
 	 */
-	public void setMaterialList(ArrayList<ExtMaterials> materialList) {
+	public void setMaterialList(List<ExtMaterials> materialList) {
 		this.materialList = materialList;
 	}
 	

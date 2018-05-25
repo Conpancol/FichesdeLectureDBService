@@ -4,6 +4,7 @@ import java.sql.Date;
 import java.util.ArrayList;
 
 import org.bson.types.ObjectId;
+import org.mongodb.morphia.annotations.Embedded;
 import org.mongodb.morphia.annotations.Id;
 
 public class Quotes {
@@ -27,6 +28,7 @@ public class Quotes {
 	
 	private String providerName;
 	
+	@Embedded
 	private ArrayList<QuotedMaterials> materialList;
 
 	/**

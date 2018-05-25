@@ -1,30 +1,24 @@
 package fichedbsvc;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
+import org.bson.types.ObjectId;
 import org.junit.Test;
-import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.Key;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 
 import co.phystech.aosorio.config.Constants;
 import co.phystech.aosorio.controllers.CfgController;
 import co.phystech.aosorio.controllers.MaterialsController;
-import co.phystech.aosorio.controllers.NoSqlController;
+import co.phystech.aosorio.controllers.RequestForQuotesController;
+import co.phystech.aosorio.models.ExtMaterials;
 import co.phystech.aosorio.models.Materials;
+import co.phystech.aosorio.models.RequestForQuotes;
 
 public class ModelTest {
 
@@ -37,23 +31,70 @@ public class ModelTest {
 	public static final String type = "CS";
 	public static final String category = "TUBE";
 	public static final String dimensions = "1\"";
-	
+
 	@Test
 	public void materialCreationTest() {
-					
+
 		Materials material = new Materials();
 
-		material.setItemcode(itemcode);;
+		material.setItemcode(itemcode);
 		material.setDescription(description);
 		material.setType(type);
 		material.setCategory(category);
 		material.setDimensions(dimensions);
 
 		MaterialsController ctx = new MaterialsController();
-		ctx.create(material);
+		Key<Materials> keys = ctx.create(material);
+		ObjectId id = (ObjectId) keys.getId();
+
+		assertEquals(itemcode, ctx.read(id).getItemcode());
+
+		ctx.delete(material);
 
 		slf4jLogger.info("materialCreationTest> success");
+
+	}
+
+	@Test
+	public void rfqCreationTest() {
+
+		RequestForQuotes rfq = new RequestForQuotes();
+
+		Date now = new Date();
+
+		rfq.setInternalCode(1234);
+		rfq.setExternalCode(7890);
+		rfq.setProcessedDate(now);
+		rfq.setReceivedDate(now);
+		rfq.setSentDate(now);
+		rfq.setUser("aosorio");
+
+		ExtMaterials material = new ExtMaterials();
+
+		material.setItemcode(itemcode);
+		
+		material.setDescription(description);
+		material.setType(type);
+		material.setCategory(category);
+		material.setDimensions(dimensions);
+		material.setOrderNumber("9000");
+		material.setQuantity(1.0);
+		material.setUnit("EA");
+		
+		List<ExtMaterials> ext = new ArrayList<ExtMaterials>();
+		ext.add(material);
+		rfq.setMaterialList(ext);
+		
+		RequestForQuotesController ctx = new RequestForQuotesController();
+		Key<RequestForQuotes> keys = ctx.create(rfq);
+		ObjectId id = (ObjectId) keys.getId();
+		
+		assertEquals(1234, ctx.read(id).getInternalCode());
+		
+		ctx.delete(rfq);
+
+		slf4jLogger.info("rfqCreationTest> success");
 		
 	}
-	
+
 }

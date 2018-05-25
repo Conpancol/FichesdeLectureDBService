@@ -3,15 +3,18 @@
  */
 package co.phystech.aosorio.models;
 
+import org.mongodb.morphia.annotations.Embedded;
+
 /**
  * @author AOSORIO
  *
  */
+@Embedded
 public class ExtMaterials extends Materials {
 	
 	private String orderNumber;
 	private String unit;
-	private float quantity;
+	private double quantity;
 	/**
 	 * @return the orderNumber
 	 */
@@ -39,14 +42,14 @@ public class ExtMaterials extends Materials {
 	/**
 	 * @return the quantity
 	 */
-	public float getQuantity() {
+	public double getQuantity() {
 		return quantity;
 	}
 	/**
-	 * @param quantity the quantity to set
+	 * @param d the quantity to set
 	 */
-	public void setQuantity(float quantity) {
-		this.quantity = quantity;
+	public void setQuantity(double d) {
+		this.quantity = d;
 	}
 	
 	
