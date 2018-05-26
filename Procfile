@@ -1,1 +1,1 @@
-web: java -jar target/fichedbsvc-1.0-jar-with-dependencies.jar
+web: java -jar target/materialsdbsvc-1.0-jar-with-dependencies.jar

@@ -1,4 +1,4 @@
-package fichedbsvc;
+package materialsdbsvc;
 
 import static org.junit.Assert.assertEquals;
 
@@ -67,9 +67,8 @@ public class ModelTest {
 
 		rfq.setInternalCode(1234);
 		rfq.setExternalCode(7890);
-		rfq.setProcessedDate(now);
-		rfq.setReceivedDate(now);
-		rfq.setSentDate(now);
+		rfq.setProcessedDate(now.toString());
+		rfq.setReceivedDate(now.toString());
 		rfq.setUser("aosorio");
 
 		ExtMaterials material = new ExtMaterials();
@@ -89,7 +88,7 @@ public class ModelTest {
 		rfq.setMaterialList(ext);
 		
 		RequestForQuotesController ctx = new RequestForQuotesController();
-		Key<RequestForQuotes> keys = ctx.create(rfq);
+		Key<RequestForQuotes> keys = RequestForQuotesController.create(rfq);
 		ObjectId id = (ObjectId) keys.getId();
 		
 		assertEquals(1234, ctx.read(id).getInternalCode());

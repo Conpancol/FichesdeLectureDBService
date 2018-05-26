@@ -3,7 +3,6 @@
  */
 package co.phystech.aosorio.models;
 
-import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,11 +25,9 @@ public class RequestForQuotes {
 	
 	private int externalCode;
 	
-	private Date receivedDate;
+	private String receivedDate;
 	
-	private Date processedDate;
-	
-	private Date sentDate;
+	private String processedDate;
 	
 	private String user;
 	
@@ -86,43 +83,29 @@ public class RequestForQuotes {
 	/**
 	 * @return the receivedDate
 	 */
-	public Date getReceivedDate() {
+	public String getReceivedDate() {
 		return receivedDate;
 	}
 
 	/**
 	 * @param receivedDate the receivedDate to set
 	 */
-	public void setReceivedDate(Date receivedDate) {
+	public void setReceivedDate(String receivedDate) {
 		this.receivedDate = receivedDate;
 	}
 
 	/**
 	 * @return the processedDate
 	 */
-	public Date getProcessedDate() {
+	public String getProcessedDate() {
 		return processedDate;
 	}
 
 	/**
 	 * @param processedDate the processedDate to set
 	 */
-	public void setProcessedDate(Date processedDate) {
+	public void setProcessedDate(String processedDate) {
 		this.processedDate = processedDate;
-	}
-
-	/**
-	 * @return the sentDate
-	 */
-	public Date getSentDate() {
-		return sentDate;
-	}
-
-	/**
-	 * @param sentDate the sentDate to set
-	 */
-	public void setSentDate(Date sentDate) {
-		this.sentDate = sentDate;
 	}
 
 	/**

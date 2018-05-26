@@ -3,15 +3,24 @@
  */
 package co.phystech.aosorio.controllers;
 
+import java.io.IOException;
+
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Key;
 import org.mongodb.morphia.query.UpdateOperations;
 import org.mongodb.morphia.query.UpdateResults;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.WriteResult;
 
+import co.phystech.aosorio.config.Constants;
+import co.phystech.aosorio.models.BackendMessage;
 import co.phystech.aosorio.models.RequestForQuotes;
+import spark.Request;
+import spark.Response;
 
 /**
  * @author AOSORIO
@@ -19,14 +28,50 @@ import co.phystech.aosorio.models.RequestForQuotes;
  */
 public class RequestForQuotesController {
 	
-private Datastore datastore;
+private static Datastore datastore;
 	
+private final static Logger slf4jLogger = LoggerFactory.getLogger(RequestForQuotesController.class);
+
 	public RequestForQuotesController() {
 		NoSqlController dbcontroller = NoSqlController.getInstance();
 		datastore = dbcontroller.getDatabase();
 	}
 
-	public Key<RequestForQuotes> create(RequestForQuotes rfq) {
+	public static Object create(Request pRequest, Response pResponse) {
+		
+		datastore = NoSqlController.getInstance().getDatabase();
+		
+		BackendMessage returnMessage = new BackendMessage();
+
+		pResponse.type("application/json");
+				
+		try {
+
+			slf4jLogger.info(pRequest.body());
+			
+			ObjectMapper mapper = new ObjectMapper();
+		
+			RequestForQuotes newRFQ = mapper.readValue(pRequest.body(), RequestForQuotes.class);
+			
+			Key<RequestForQuotes> keys = create(newRFQ);
+			ObjectId id = (ObjectId) keys.getId();
+			
+			slf4jLogger.info(id.toString());
+			
+			pResponse.status(200);
+			return returnMessage.getOkMessage(String.valueOf(id));
+			
+		} catch (IOException jpe) {
+			jpe.printStackTrace();
+			slf4jLogger.debug("Problem adding fiche");
+			pResponse.status(Constants.HTTP_BAD_REQUEST);
+			return returnMessage.getNotOkMessage("Problem adding RFQ");
+		} 
+			
+		
+	}
+	
+	public static Key<RequestForQuotes> create(RequestForQuotes rfq) {
 		return datastore.save(rfq);
 	}
 	

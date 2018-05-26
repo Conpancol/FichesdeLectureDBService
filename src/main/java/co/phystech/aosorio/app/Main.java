@@ -5,9 +5,7 @@ package co.phystech.aosorio.app;
 
 import static spark.Spark.post;
 import static spark.Spark.get;
-import static spark.Spark.put;
 import static spark.Spark.before;
-import static spark.Spark.delete;
 
 import static spark.Spark.options;
 import static spark.Spark.port;
@@ -17,6 +15,7 @@ import co.phystech.aosorio.services.GeneralSvc;
 import co.phystech.aosorio.services.StatisticsSvc;
 import co.phystech.aosorio.config.CorsFilter;
 import co.phystech.aosorio.config.Routes;
+import co.phystech.aosorio.controllers.RequestForQuotesController;
 
 /**
  * @author AOSORIO
@@ -36,12 +35,14 @@ public class Main {
 		get("/hello", (req, res) -> "Fiche DB service deployed");
 
 		// .. Authorization
-		if (args.length == 0)
-			before(Routes.USERS + "*", AuthorizeSvc::authorizeUser);
+		//if (args.length == 0)
+		//	before(Routes.AUTH + "*", AuthorizeSvc::authorizeUser);
 
 		// ... Materials
 		
+		// ... RFQs
 		
+		post(Routes.RFQS, RequestForQuotesController::create, GeneralSvc.json());
 		
 		// ... Statistics
 

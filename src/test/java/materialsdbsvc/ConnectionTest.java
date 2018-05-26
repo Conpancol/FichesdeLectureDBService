@@ -1,4 +1,4 @@
-package fichedbsvc;
+package materialsdbsvc;
 
 import org.junit.Test;
 import org.mongodb.morphia.Datastore;

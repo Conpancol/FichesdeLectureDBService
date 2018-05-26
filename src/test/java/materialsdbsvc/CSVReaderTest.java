@@ -1,4 +1,4 @@
-package fichedbsvc;
+package materialsdbsvc;
 
 import static org.junit.Assert.*;
 
