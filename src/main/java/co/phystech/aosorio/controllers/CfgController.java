@@ -4,7 +4,6 @@
 package co.phystech.aosorio.controllers;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -15,7 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mongodb.ServerAddress;
-import com.heroku.sdk.jdbc.DatabaseUrl;
+
+import co.phystech.aosorio.config.Constants;
 
 /**
  * @author AOSORIO
@@ -26,6 +26,7 @@ public class CfgController {
 	private static String dbEnv;
 	private static String dbType;
 	private static String dbServerUrl;
+	private static String dbHost;
 	private static String dbPort;
 	private static String dbName;
 	private static String dbAddress;
@@ -53,16 +54,22 @@ public class CfgController {
 			dbEnv = prop.getProperty("db.env");
 			dbType = prop.getProperty("db.type");
 			dbName = prop.getProperty("db.name");
-			dbServerUrl = prop.getProperty("db.url");
-
+			dbHost = prop.getProperty("db.host");
+			
+			dbServerUrl = prop.getProperty(dbType + ".url") + dbHost;
 			dbPort = prop.getProperty(dbType + ".port");
 			dbUser = prop.getProperty(dbType + ".user");
 			dbPass = prop.getProperty(dbType + ".pass");
+						
+			if (dbEnv.equals("atlas")) {
 
-			if (dbEnv.equals("local")) {
-				setDbAddress(dbServerUrl + ":" + dbPort + "/" + dbName);
+				getAtlasConfig();
+
 			} else {
-				getAwsConfig();
+				
+				setDbAddress(dbServerUrl + ":" + dbPort + "/" + dbName);
+				slf4jLogger.info("Default dbAddress: " + this.getDbAddress());
+				
 			}
 
 			dbReplicaSetIPs = prop.getProperty("mongo.db.replicasetips").split(",");
@@ -72,12 +79,8 @@ public class CfgController {
 				dbServerAdresses.add(new ServerAddress(ips, 27017));
 			}
 
-		} catch (FileNotFoundException ex) {
-			
-			getAwsConfig();
-			
 		} catch (IOException ex) {
-			
+
 			ex.printStackTrace();
 			dbEnv = "local";
 			dbServerUrl = "localhost";
@@ -95,24 +98,26 @@ public class CfgController {
 		}
 	}
 
-	private void getAwsConfig() {
+	private void getAtlasConfig() throws IOException {
 
-		try {
+		Properties atlas = new Properties();
+		InputStream input = null;
 
-			dbServerUrl = DatabaseUrl.extract().host();
-			dbName = DatabaseUrl.extract().path();
-			dbPort = String.valueOf(DatabaseUrl.extract().port());
-			dbPass = DatabaseUrl.extract().password();
-			dbUser = DatabaseUrl.extract().username();
+		input = new FileInputStream(Constants.PROD_CONFIG_FILE);
+		atlas.load(input);
 
-			setDbAddress("jdbc:postgresql://" + dbServerUrl + ":" + dbPort + dbName + "?sslmode=require");
+		dbServerUrl = atlas.getProperty("mongo.atlas.url");
+		dbUser = atlas.getProperty("mongo.atlas.user");
+		dbPass = atlas.getProperty("mongo.atlas.pass");
+		dbServerUrl = dbServerUrl.replace("<USER>", dbUser);
+		dbServerUrl = dbServerUrl.replace("<PASSWORD>", dbPass);
 
-			slf4jLogger.info(dbAddress);
+		slf4jLogger.debug("DbAddress: " + dbServerUrl);
 
-		} catch (Exception e) {
-			slf4jLogger.info("Problem extracting DatabaseURL info");
-		}
+		setDbAddress(dbServerUrl);
 
+		input.close();
+		
 	}
 
 	/**

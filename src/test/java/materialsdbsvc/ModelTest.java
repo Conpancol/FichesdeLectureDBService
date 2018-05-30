@@ -108,9 +108,9 @@ public class ModelTest {
 
 		quote.setInternalCode(1234);
 		quote.setExternalCode(7890);
-		quote.setProcessedDate(now);
-		quote.setReceivedDate(now);
-		quote.setSentDate(now);
+		quote.setProcessedDate(now.toString());
+		quote.setReceivedDate(now.toString());
+		quote.setSentDate(now.toString());
 		quote.setUser("aosorio");
 		quote.setProviderCode("A012345");
 		quote.setProviderName("Van Leuwen");
@@ -137,7 +137,7 @@ public class ModelTest {
 		quote.setMaterialList(ext);
 		
 		QuotesController ctx = new QuotesController();
-		Key<Quotes> keys = ctx.create(quote);
+		Key<Quotes> keys = QuotesController.create(quote);
 		ObjectId id = (ObjectId) keys.getId();
 		
 		assertEquals(1234, ctx.read(id).getInternalCode());

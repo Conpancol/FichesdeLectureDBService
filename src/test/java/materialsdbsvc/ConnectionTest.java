@@ -10,6 +10,7 @@ import com.mongodb.MongoClient;
 
 import co.phystech.aosorio.config.Constants;
 import co.phystech.aosorio.controllers.CfgController;
+import co.phystech.aosorio.controllers.NoSqlController;
 
 public class ConnectionTest {
 
@@ -27,7 +28,18 @@ public class ConnectionTest {
 		Datastore datastore = morphia.createDatastore(new MongoClient(), dbName);
 		
 		if( datastore != null ) {
-			slf4jLogger.info("We are connected");
+			slf4jLogger.info("We are connected - Standard method ");
+		}
+		
+	}
+	
+	@Test
+	public void connectNoSqlController() {
+
+		Datastore datastore = NoSqlController.getInstance().getDatabase();
+		
+		if( datastore != null ) {
+			slf4jLogger.info("We are connected - using NoSqlController");
 		}
 		
 	}

@@ -1,6 +1,5 @@
 package co.phystech.aosorio.models;
 
-import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -21,17 +20,19 @@ public class Quotes {
 	
 	private String providerCode;
 	
-	private Date receivedDate;
+	private String receivedDate;
 	
-	private Date processedDate;
+	private String processedDate;
 	
-	private Date sentDate;
+	private String sentDate;
 	
 	private String user;
 	
 	private String providerName;
 	
 	private String contactName;
+	
+	private String incoterms;
 	
 	@Embedded
 	private List<QuotedMaterials> materialList = new ArrayList<QuotedMaterials>();
@@ -95,42 +96,42 @@ public class Quotes {
 	/**
 	 * @return the receivedDate
 	 */
-	public Date getReceivedDate() {
+	public String getReceivedDate() {
 		return receivedDate;
 	}
 
 	/**
 	 * @param receivedDate the receivedDate to set
 	 */
-	public void setReceivedDate(Date receivedDate) {
+	public void setReceivedDate(String receivedDate) {
 		this.receivedDate = receivedDate;
 	}
 
 	/**
 	 * @return the processedDate
 	 */
-	public Date getProcessedDate() {
+	public String getProcessedDate() {
 		return processedDate;
 	}
 
 	/**
 	 * @param processedDate the processedDate to set
 	 */
-	public void setProcessedDate(Date processedDate) {
+	public void setProcessedDate(String processedDate) {
 		this.processedDate = processedDate;
 	}
 
 	/**
 	 * @return the sentDate
 	 */
-	public Date getSentDate() {
+	public String getSentDate() {
 		return sentDate;
 	}
 
 	/**
 	 * @param sentDate the sentDate to set
 	 */
-	public void setSentDate(Date sentDate) {
+	public void setSentDate(String sentDate) {
 		this.sentDate = sentDate;
 	}
 
@@ -188,6 +189,20 @@ public class Quotes {
 	 */
 	public void setContactName(String contactName) {
 		this.contactName = contactName;
+	}
+
+	/**
+	 * @return the incoterms
+	 */
+	public String getIncoterms() {
+		return incoterms;
+	}
+
+	/**
+	 * @param incoterms the incoterms to set
+	 */
+	public void setIncoterms(String incoterms) {
+		this.incoterms = incoterms;
 	}
 	
 	

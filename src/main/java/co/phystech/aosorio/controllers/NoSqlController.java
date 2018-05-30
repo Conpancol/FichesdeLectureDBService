@@ -7,6 +7,7 @@ import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 
 import co.phystech.aosorio.config.Constants;
 
@@ -26,10 +27,15 @@ public class NoSqlController {
 		CfgController dbConf = new CfgController(Constants.CONFIG_FILE);
 		
 		String dbName = dbConf.getDbName();
+		String dbAddress = dbConf.getDbAddress();
 		
 		morphia = new Morphia();
 		morphia.mapPackage("co.phystech.aosorio.dbmicrosvc");
-		datastore = morphia.createDatastore(new MongoClient(), dbName);
+		
+		MongoClientURI uri = new MongoClientURI(dbAddress);
+		MongoClient mongoClient = new MongoClient(uri);
+					    
+		datastore = morphia.createDatastore(mongoClient, dbName);
 		//datastore.ensureIndexes();
 		
 	}
