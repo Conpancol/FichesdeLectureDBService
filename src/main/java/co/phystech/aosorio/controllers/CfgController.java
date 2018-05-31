@@ -100,23 +100,15 @@ public class CfgController {
 
 	private void getAtlasConfig() throws IOException {
 
-		Properties atlas = new Properties();
-		InputStream input = null;
-
-		input = new FileInputStream(Constants.PROD_CONFIG_FILE);
-		atlas.load(input);
-
-		dbServerUrl = atlas.getProperty("mongo.atlas.url");
-		dbUser = atlas.getProperty("mongo.atlas.user");
-		dbPass = atlas.getProperty("mongo.atlas.pass");
+		dbServerUrl = System.getenv("ATLAS_URL");
+		dbUser = System.getenv("ATLAS_USER");
+		dbPass = System.getenv("ATLAS_PASS");		
 		dbServerUrl = dbServerUrl.replace("<USER>", dbUser);
 		dbServerUrl = dbServerUrl.replace("<PASSWORD>", dbPass);
 
 		slf4jLogger.debug("DbAddress: " + dbServerUrl);
 
 		setDbAddress(dbServerUrl);
-
-		input.close();
 		
 	}
 
