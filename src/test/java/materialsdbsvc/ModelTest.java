@@ -70,6 +70,7 @@ public class ModelTest {
 		rfq.setProcessedDate(now.toString());
 		rfq.setReceivedDate(now.toString());
 		rfq.setUser("aosorio");
+		rfq.setNote("Material para proyecto Serpentines");
 
 		ExtMaterials material = new ExtMaterials();
 

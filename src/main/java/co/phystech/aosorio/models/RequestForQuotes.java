@@ -35,6 +35,8 @@ public class RequestForQuotes {
 	
 	private String company;
 	
+	private String note;
+	
 	@Embedded
 	private List<ExtMaterials> materialList = new ArrayList<ExtMaterials>();;
 
@@ -162,6 +164,20 @@ public class RequestForQuotes {
 	 */
 	public void setCompany(String company) {
 		this.company = company;
+	}
+
+	/**
+	 * @return the note
+	 */
+	public String getNote() {
+		return note;
+	}
+
+	/**
+	 * @param note the note to set
+	 */
+	public void setNote(String note) {
+		this.note = note;
 	}
 	
 	

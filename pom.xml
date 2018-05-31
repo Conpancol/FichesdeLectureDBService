@@ -46,7 +46,7 @@
 				<version>2.0.4</version>
 				<configuration>
 					<jdkVersion>1.8</jdkVersion>
-					<appName>fast-sea-84532</appName>
+					<appName>mysterious-island-54825</appName>
 					<processTypes>
 						<web>java $JAVA_OPTS -cp target/classes:target/dependency/* co.phystech.aosorio.app.Main</web>
 					</processTypes>
