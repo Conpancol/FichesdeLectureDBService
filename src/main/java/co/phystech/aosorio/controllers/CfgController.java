@@ -15,8 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import com.mongodb.ServerAddress;
 
-import co.phystech.aosorio.config.Constants;
-
 /**
  * @author AOSORIO
  *

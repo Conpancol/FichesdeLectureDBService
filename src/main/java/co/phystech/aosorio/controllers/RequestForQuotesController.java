@@ -4,10 +4,13 @@
 package co.phystech.aosorio.controllers;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Key;
+import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
 import org.mongodb.morphia.query.UpdateResults;
 import org.slf4j.Logger;
@@ -67,8 +70,36 @@ private final static Logger slf4jLogger = LoggerFactory.getLogger(RequestForQuot
 			pResponse.status(Constants.HTTP_BAD_REQUEST);
 			return returnMessage.getNotOkMessage("Problem adding RFQ");
 		} 
-			
+					
+	}
+	
+	public static Object read(Request pRequest, Response pResponse) {
+
+		datastore = NoSqlController.getInstance().getDatabase();
 		
+		int id = Integer.valueOf(pRequest.params("id"));
+		
+		slf4jLogger.debug("Parameters: " + id);
+
+		Query<RequestForQuotes> query = datastore.createQuery(RequestForQuotes.class);
+		List<RequestForQuotes> result = query.field("internalCode").equal(id).asList();
+		
+		try {
+			
+			RequestForQuotes rfq = result.iterator().next();
+			pResponse.status(200);
+			pResponse.type("application/json");
+			return rfq;
+			
+		} catch (NoSuchElementException ex) {
+			
+			BackendMessage returnMessage = new BackendMessage();
+			slf4jLogger.debug("RFQ not found");
+			pResponse.status(Constants.HTTP_BAD_REQUEST);
+			return returnMessage.getNotOkMessage("No RFQ Found");
+			
+		}
+
 	}
 	
 	public static Key<RequestForQuotes> create(RequestForQuotes rfq) {
