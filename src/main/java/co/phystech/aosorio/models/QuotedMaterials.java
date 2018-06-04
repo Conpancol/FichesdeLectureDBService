@@ -17,6 +17,7 @@ public class QuotedMaterials extends ExtMaterials {
 	private double givenWeight;
 	private double unitPrice;
 	private double totalPrice;
+	private String note;
 	/**
 	 * @return the theoreticalWeight
 	 */
@@ -64,6 +65,18 @@ public class QuotedMaterials extends ExtMaterials {
 	 */
 	public void setTotalPrice(double totalPrice) {
 		this.totalPrice = totalPrice;
+	}
+	/**
+	 * @return the note
+	 */
+	public String getNote() {
+		return note;
+	}
+	/**
+	 * @param note the note to set
+	 */
+	public void setNote(String note) {
+		this.note = note;
 	}
 	
 	

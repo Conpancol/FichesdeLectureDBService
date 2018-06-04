@@ -28,11 +28,15 @@ public class Quotes {
 	
 	private String user;
 	
+	private String providerId;
+	
 	private String providerName;
 	
 	private String contactName;
 	
 	private String incoterms;
+	
+	private String note;
 	
 	@Embedded
 	private List<QuotedMaterials> materialList = new ArrayList<QuotedMaterials>();
@@ -203,6 +207,34 @@ public class Quotes {
 	 */
 	public void setIncoterms(String incoterms) {
 		this.incoterms = incoterms;
+	}
+
+	/**
+	 * @return the providerId
+	 */
+	public String getProviderId() {
+		return providerId;
+	}
+
+	/**
+	 * @param providerId the providerId to set
+	 */
+	public void setProviderId(String providerId) {
+		this.providerId = providerId;
+	}
+
+	/**
+	 * @return the note
+	 */
+	public String getNote() {
+		return note;
+	}
+
+	/**
+	 * @param note the note to set
+	 */
+	public void setNote(String note) {
+		this.note = note;
 	}
 	
 	

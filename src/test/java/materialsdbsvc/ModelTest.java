@@ -47,7 +47,7 @@ public class ModelTest {
 		material.setDimensions(dimensions);
 
 		MaterialsController ctx = new MaterialsController();
-		Key<Materials> keys = ctx.create(material);
+		Key<Materials> keys = MaterialsController.create(material);
 		ObjectId id = (ObjectId) keys.getId();
 
 		assertEquals(itemcode, ctx.read(id).getItemcode());

@@ -96,7 +96,7 @@ private final static Logger slf4jLogger = LoggerFactory.getLogger(RequestForQuot
 			BackendMessage returnMessage = new BackendMessage();
 			slf4jLogger.debug("RFQ not found");
 			pResponse.status(Constants.HTTP_BAD_REQUEST);
-			return returnMessage.getNotOkMessage("No RFQ Found");
+			return returnMessage.getNotOkMessage("RFQ not found");
 			
 		}
 
