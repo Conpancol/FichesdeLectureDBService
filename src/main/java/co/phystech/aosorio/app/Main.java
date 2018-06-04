@@ -43,6 +43,8 @@ public class Main {
 		// ... Materials
 		post(Routes.MATERIALS, MaterialsController::create, GeneralSvc.json());
 		
+		get(Routes.MATERIALS + "/:id", MaterialsController::read, GeneralSvc.json());
+		
 		// ... RFQs
 		
 		post(Routes.RFQS, RequestForQuotesController::create, GeneralSvc.json());

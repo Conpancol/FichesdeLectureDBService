@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.Datastore;
@@ -57,8 +58,7 @@ public class MaterialsController {
 			ObjectMapper mapper = new ObjectMapper();
 
 			ArrayList<Materials> newMaterials = mapper.readValue(pRequest.body(),
-					new TypeReference<ArrayList<Materials>>() {
-					});
+					new TypeReference<ArrayList<Materials>>() {});
 			
 			ArrayList<Key<Materials>> keys = create(newMaterials);
 			pResponse.status(200);
@@ -103,8 +103,49 @@ public class MaterialsController {
 		return addedKeys;
 	}
 
-	public Materials read(ObjectId id) {
+	public static Object read(Request pRequest, Response pResponse) {
+
+		datastore = NoSqlController.getInstance().getDatabase();
+		
+		String id = pRequest.params("id");
+		
+		slf4jLogger.debug("Parameters: " + id);
+		
+		List<Materials> result = read(id);
+		
+		try {
+			
+			Materials material = result.iterator().next();
+			pResponse.status(200);
+			pResponse.type("application/json");
+			return material;
+			
+		} catch (NoSuchElementException ex) {
+			
+			BackendMessage returnMessage = new BackendMessage();
+			slf4jLogger.debug("Material not found");
+			pResponse.status(Constants.HTTP_BAD_REQUEST);
+			return returnMessage.getNotOkMessage("Material not found");
+			
+		}
+
+	}
+	
+	public static Materials read(ObjectId id) {
+		
+		datastore = NoSqlController.getInstance().getDatabase();
+		
 		return datastore.get(Materials.class, id);
+	}
+	
+	public static List<Materials> read(String itemCode) {
+		
+		datastore = NoSqlController.getInstance().getDatabase();
+		
+		Query<Materials> query = datastore.createQuery(Materials.class);
+		List<Materials> result = query.field("itemcode").equal(itemCode).asList();
+		
+		return result;
 	}
 
 	public UpdateResults update(Materials material, UpdateOperations<Materials> operations) {
