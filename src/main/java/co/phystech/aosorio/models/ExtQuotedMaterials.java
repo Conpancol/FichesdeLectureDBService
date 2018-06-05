@@ -1,0 +1,101 @@
+/**
+ * 
+ */
+package co.phystech.aosorio.models;
+
+import org.bson.types.ObjectId;
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Id;
+
+/**
+ * @author AOSORIO
+ *
+ */
+
+@Entity("qmaterials")
+public class ExtQuotedMaterials extends QuotedMaterials {
+
+	@Id
+	private ObjectId id;
+
+	private String providerId;
+
+	private String providerName;
+	
+	private String updateDate;
+
+	public ExtQuotedMaterials(QuotedMaterials material) {
+		
+		this.setItemcode(material.getItemcode());
+		this.setDescription(material.getDescription());
+		this.setDimensions(material.getDimensions());
+		this.setType(material.getType());
+		this.setCategory(material.getCategory());
+		this.setOrderNumber(material.getOrderNumber());
+		this.setUnit(material.getUnit());
+		this.setQuantity(material.getQuantity());
+		this.setTheoreticalWeight(material.getTheoreticalWeight());
+		this.setGivenWeight(material.getGivenWeight());
+		this.setUnitPrice(material.getUnitPrice());
+		this.setTotalPrice(material.getTotalPrice());
+		this.setNote(material.getNote());
+				
+	}
+
+	/**
+	 * @return the id
+	 */
+	public ObjectId getId() {
+		return id;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(ObjectId id) {
+		this.id = id;
+	}
+
+	/**
+	 * @return the providerId
+	 */
+	public String getProviderId() {
+		return providerId;
+	}
+
+	/**
+	 * @param providerId the providerId to set
+	 */
+	public void setProviderId(String providerId) {
+		this.providerId = providerId;
+	}
+
+	/**
+	 * @return the providerName
+	 */
+	public String getProviderName() {
+		return providerName;
+	}
+
+	/**
+	 * @param providerName the providerName to set
+	 */
+	public void setProviderName(String providerName) {
+		this.providerName = providerName;
+	}
+
+	/**
+	 * @return the updateDate
+	 */
+	public String getUpdateDate() {
+		return updateDate;
+	}
+
+	/**
+	 * @param updateDate the updateDate to set
+	 */
+	public void setUpdateDate(String updateDate) {
+		this.updateDate = updateDate;
+	}
+	
+}

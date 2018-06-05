@@ -23,9 +23,9 @@ import co.phystech.aosorio.models.QuotedMaterials;
 import co.phystech.aosorio.models.Quotes;
 import co.phystech.aosorio.models.RequestForQuotes;
 
-public class ModelTest {
+public class ModelsTest {
 
-	private final static Logger slf4jLogger = LoggerFactory.getLogger(ModelTest.class);
+	private final static Logger slf4jLogger = LoggerFactory.getLogger(ModelsTest.class);
 
 	CfgController dbConf = new CfgController(Constants.CONFIG_FILE);
 
@@ -50,7 +50,9 @@ public class ModelTest {
 		Key<Materials> keys = MaterialsController.create(material);
 		ObjectId id = (ObjectId) keys.getId();
 
-		assertEquals(itemcode, ctx.read(id).getItemcode());
+		String storedItem = MaterialsController.read(id).getItemcode();
+		
+		assertEquals(itemcode, storedItem);
 
 		ctx.delete(material);
 
