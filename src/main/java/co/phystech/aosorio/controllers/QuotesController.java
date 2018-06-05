@@ -4,6 +4,8 @@
 package co.phystech.aosorio.controllers;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -21,6 +23,9 @@ import com.mongodb.WriteResult;
 
 import co.phystech.aosorio.config.Constants;
 import co.phystech.aosorio.models.BackendMessage;
+import co.phystech.aosorio.models.ExtMaterials;
+import co.phystech.aosorio.models.Materials;
+import co.phystech.aosorio.models.QuotedMaterials;
 import co.phystech.aosorio.models.Quotes;
 import spark.Request;
 import spark.Response;
@@ -34,6 +39,8 @@ public class QuotesController {
 	private final static Logger slf4jLogger = LoggerFactory.getLogger(QuotesController.class);
 
 	private static Datastore datastore;
+	
+	private static ArrayList<QuotedMaterials> missingMaterials = new ArrayList<QuotedMaterials>();
 
 	public QuotesController() {
 		NoSqlController dbcontroller = NoSqlController.getInstance();
@@ -57,12 +64,15 @@ public class QuotesController {
 			Quotes newQuote = mapper.readValue(pRequest.body(), Quotes.class);
 
 			Key<Quotes> keys = create(newQuote);
-			ObjectId id = (ObjectId) keys.getId();
-
-			slf4jLogger.info(id.toString());
-
 			pResponse.status(200);
-			return returnMessage.getOkMessage(String.valueOf(id));
+			
+			if (keys != null) {
+				ObjectId id = (ObjectId) keys.getId();
+				slf4jLogger.info(id.toString());
+				return returnMessage.getOkMessage(String.valueOf(id));
+			} else {
+				return returnMessage.getNotOkMessage("Quote already exists");
+			}
 
 		} catch (IOException jpe) {
 			jpe.printStackTrace();
@@ -102,8 +112,67 @@ public class QuotesController {
 
 	}
 	
+	private static void updateMaterialList(Quotes quote) {
+
+		slf4jLogger.debug("Entering updater");
+		
+		missingMaterials.clear();
+		
+		List<QuotedMaterials> materialList = quote.getMaterialList();
+		Iterator<QuotedMaterials> itr = materialList.iterator();
+
+		while (itr.hasNext()) {
+
+			QuotedMaterials material = itr.next();
+			String itemCode = material.getItemcode();
+
+			slf4jLogger.debug("Searching in DB for item " + itemCode);
+
+			List<Materials> result = MaterialsController.read(itemCode);
+
+			if (result.isEmpty()) {
+				// Material not found
+				missingMaterials.add(material);
+			} else {
+				// Material found - there should be only one
+				material.setCategory(result.get(0).getCategory());
+				material.setDescription(result.get(0).getDescription());
+				material.setDimensions(result.get(0).getDimensions());
+				material.setType(result.get(0).getType());
+				slf4jLogger.debug("Incoming list materials updated");
+			}
+
+		}
+
+		itr = missingMaterials.iterator();
+
+		while (itr.hasNext()) {
+
+			ExtMaterials material = itr.next();
+			boolean status = materialList.remove(material);
+			slf4jLogger.debug("Removed material from incoming list " + status);
+
+		}
+
+	}
+
 	public static Key<Quotes> create(Quotes quote) {
-		return datastore.save(quote);
+	
+		Query<Quotes> query = datastore.createQuery(Quotes.class);
+		List<Quotes> result = query.field("providerCode").equal(quote.getProviderCode()).asList();
+
+		if (result.isEmpty()) {
+			slf4jLogger.info("RFQ not found " + quote.getInternalCode());
+			slf4jLogger.info("Size of material list " + String.valueOf(quote.getMaterialList().size()));
+			// ...check for missing material information and remove materials
+			// not in DB
+			updateMaterialList(quote);
+
+			return datastore.save(quote);
+		}
+
+		return null;
+
 	}
 
 	public Quotes read(ObjectId id) {
