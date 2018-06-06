@@ -12,6 +12,8 @@ import org.mongodb.morphia.query.UpdateResults;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.mongodb.WriteResult;
+
 import co.phystech.aosorio.models.ExtQuotedMaterials;
 
 
@@ -21,14 +23,13 @@ import co.phystech.aosorio.models.ExtQuotedMaterials;
  */
 public class ExtQuotedMaterialsController {
 	
-	private final static Logger slf4jLogger = LoggerFactory.getLogger(MaterialsController.class);
+	private final static Logger slf4jLogger = LoggerFactory.getLogger(ExtQuotedMaterialsController.class);
 
 	private static Datastore datastore;
 	
 	public static boolean create(ExtQuotedMaterials material) {
 		
 		datastore = NoSqlController.getInstance().getDatabase();
-		slf4jLogger.debug("saving new extended material");
 		
 		Query<ExtQuotedMaterials> query = datastore.createQuery(ExtQuotedMaterials.class);
 		
@@ -37,13 +38,14 @@ public class ExtQuotedMaterialsController {
 				field("quantity").equal(material.getQuantity()).asList();
 		
 		if( result.isEmpty() ) {
-			
+			slf4jLogger.info("Quote not found, saving new extended material");
 			datastore.save(material);
 			return true;
 			
 		} else {		
+			slf4jLogger.info("Quote found, updating material");
 			//update found material with new one		
-			String lastUpdate = new StringBuilder(256).
+			String lastUpdate = new StringBuilder().
 					append(result.get(0).getUpdateDate()).
 					append(",").
 					append(material.getUpdateDate()).toString();
@@ -51,15 +53,20 @@ public class ExtQuotedMaterialsController {
 			UpdateOperations<ExtQuotedMaterials> ops = createOperations();
 			ops.set("unitPrice", material.getUnitPrice());
 			ops.set("totalPrice", material.getTotalPrice());
-			ops.set("updatedDate", lastUpdate);
+			ops.set("updateDate", lastUpdate);
 			
 			UpdateResults upresult = update(result.get(0),ops);
 			
 			return upresult.getUpdatedExisting();
 
 		}
+				
+	}
+	
+	public static WriteResult delete(ExtQuotedMaterials material) {
 		
-		
+		datastore = NoSqlController.getInstance().getDatabase();
+		return datastore.delete(material);
 	}
 	
 	private static UpdateResults update(ExtQuotedMaterials material, UpdateOperations<ExtQuotedMaterials> operations) {

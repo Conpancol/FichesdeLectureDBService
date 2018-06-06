@@ -4,7 +4,10 @@
 package co.phystech.aosorio.controllers;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -24,6 +27,7 @@ import com.mongodb.WriteResult;
 import co.phystech.aosorio.config.Constants;
 import co.phystech.aosorio.models.BackendMessage;
 import co.phystech.aosorio.models.ExtMaterials;
+import co.phystech.aosorio.models.ExtQuotedMaterials;
 import co.phystech.aosorio.models.Materials;
 import co.phystech.aosorio.models.QuotedMaterials;
 import co.phystech.aosorio.models.Quotes;
@@ -83,6 +87,28 @@ public class QuotesController {
 
 	}
 	
+	public static Key<Quotes> create(Quotes quote) {
+	
+		Query<Quotes> query = datastore.createQuery(Quotes.class);
+		List<Quotes> result = query.field("providerCode").equal(quote.getProviderCode()).asList();
+
+		if (result.isEmpty()) {
+			slf4jLogger.info("RFQ not found " + quote.getInternalCode());
+			slf4jLogger.info("Size of material list " + String.valueOf(quote.getMaterialList().size()));
+			// ...check for missing material information and remove materials
+			// not in DB
+			updateMaterialList(quote);
+			
+			// ...save quoted materials in its own collection
+			saveQuotedMaterials(quote);
+
+			return datastore.save(quote);
+		}
+
+		return null;
+
+	}
+
 	public static Object read(Request pRequest, Response pResponse) {
 
 		datastore = NoSqlController.getInstance().getDatabase();
@@ -110,6 +136,22 @@ public class QuotesController {
 			
 		}
 
+	}
+	
+	public Quotes read(ObjectId id) {
+		return datastore.get(Quotes.class, id);
+	}
+
+	public UpdateResults update(Quotes quote, UpdateOperations<Quotes> operations) {
+		return datastore.update(quote, operations);
+	}
+
+	public WriteResult delete(Quotes quote) {
+		return datastore.delete(quote);
+	}
+
+	public UpdateOperations<Quotes> createOperations() {
+		return datastore.createUpdateOperations(Quotes.class);
 	}
 	
 	private static void updateMaterialList(Quotes quote) {
@@ -156,39 +198,29 @@ public class QuotesController {
 
 	}
 
-	public static Key<Quotes> create(Quotes quote) {
-	
-		Query<Quotes> query = datastore.createQuery(Quotes.class);
-		List<Quotes> result = query.field("providerCode").equal(quote.getProviderCode()).asList();
+	private static void saveQuotedMaterials(Quotes quote) {
+		
+		List<QuotedMaterials> materialList = quote.getMaterialList();
+		Iterator<QuotedMaterials> itr = materialList.iterator();
 
-		if (result.isEmpty()) {
-			slf4jLogger.info("RFQ not found " + quote.getInternalCode());
-			slf4jLogger.info("Size of material list " + String.valueOf(quote.getMaterialList().size()));
-			// ...check for missing material information and remove materials
-			// not in DB
-			updateMaterialList(quote);
+		while (itr.hasNext()) {
 
-			return datastore.save(quote);
+			QuotedMaterials material = itr.next();
+		
+			ExtQuotedMaterials quotedMaterial = new ExtQuotedMaterials(material);
+			
+			quotedMaterial.setProviderId(quote.getProviderId());
+			quotedMaterial.setProviderName(quote.getProviderName());
+			
+			Date now = new Date();
+			DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+			String updateDate = formatter.format(now);
+			quotedMaterial.setUpdateDate(updateDate);
+					
+			ExtQuotedMaterialsController.create(quotedMaterial);
+			
 		}
-
-		return null;
-
+		
 	}
-
-	public Quotes read(ObjectId id) {
-		return datastore.get(Quotes.class, id);
-	}
-
-	public UpdateResults update(Quotes quote, UpdateOperations<Quotes> operations) {
-		return datastore.update(quote, operations);
-	}
-
-	public WriteResult delete(Quotes quote) {
-		return datastore.delete(quote);
-	}
-
-	public UpdateOperations<Quotes> createOperations() {
-		return datastore.createUpdateOperations(Quotes.class);
-	}
-
+	
 }

@@ -24,6 +24,10 @@ public class ExtQuotedMaterials extends QuotedMaterials {
 	
 	private String updateDate;
 
+	public ExtQuotedMaterials() {
+		
+	}
+	
 	public ExtQuotedMaterials(QuotedMaterials material) {
 		
 		this.setItemcode(material.getItemcode());
