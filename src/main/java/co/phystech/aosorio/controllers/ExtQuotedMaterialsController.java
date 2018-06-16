@@ -3,9 +3,11 @@
  */
 package co.phystech.aosorio.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.Key;
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
 import org.mongodb.morphia.query.UpdateResults;
@@ -61,6 +63,20 @@ public class ExtQuotedMaterialsController {
 
 		}
 				
+	}
+	
+	public static boolean create(List<ExtQuotedMaterials> materials) {
+		
+		datastore = NoSqlController.getInstance().getDatabase();
+		
+		Iterable<Key<ExtQuotedMaterials>>  itrKeys = datastore.save(materials);
+		List<Key<ExtQuotedMaterials>> target = new ArrayList<Key<ExtQuotedMaterials>>();
+		
+		itrKeys.forEach(target::add);
+		if( materials.size() == target.size())
+			return true;
+		
+		return false;
 	}
 	
 	public static WriteResult delete(ExtQuotedMaterials material) {

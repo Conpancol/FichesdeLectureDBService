@@ -23,6 +23,8 @@ public class ExtQuotedMaterials extends QuotedMaterials {
 	private String providerName;
 	
 	private String updateDate;
+	
+	private double usdTRM;
 
 	public ExtQuotedMaterials() {
 		
@@ -100,6 +102,20 @@ public class ExtQuotedMaterials extends QuotedMaterials {
 	 */
 	public void setUpdateDate(String updateDate) {
 		this.updateDate = updateDate;
+	}
+
+	/**
+	 * @return the usdTRM
+	 */
+	public double getUsdTRM() {
+		return usdTRM;
+	}
+
+	/**
+	 * @param usdTRM the usdTRM to set
+	 */
+	public void setUsdTRM(double usdTRM) {
+		this.usdTRM = usdTRM;
 	}
 	
 }

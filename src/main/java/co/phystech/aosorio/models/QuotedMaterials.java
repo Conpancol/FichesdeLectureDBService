@@ -17,6 +17,8 @@ public class QuotedMaterials extends ExtMaterials {
 	private double givenWeight;
 	private double unitPrice;
 	private double totalPrice;
+	private String currency;
+	private String countryOrigin;
 	private String note;
 	/**
 	 * @return the theoreticalWeight
@@ -77,6 +79,30 @@ public class QuotedMaterials extends ExtMaterials {
 	 */
 	public void setNote(String note) {
 		this.note = note;
+	}
+	/**
+	 * @return the currency
+	 */
+	public String getCurrency() {
+		return currency;
+	}
+	/**
+	 * @param currency the currency to set
+	 */
+	public void setCurrency(String currency) {
+		this.currency = currency;
+	}
+	/**
+	 * @return the countryOrigin
+	 */
+	public String getCountryOrigin() {
+		return countryOrigin;
+	}
+	/**
+	 * @param countryOrigin the countryOrigin to set
+	 */
+	public void setCountryOrigin(String countryOrigin) {
+		this.countryOrigin = countryOrigin;
 	}
 	
 	

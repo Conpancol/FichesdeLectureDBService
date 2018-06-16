@@ -3,8 +3,8 @@
  */
 package co.phystech.aosorio.services;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
@@ -18,10 +18,12 @@ import spark.Response;
  */
 public class StatisticsSvc {
 
-	private final static Logger slf4jLogger = LoggerFactory.getLogger(StatisticsSvc.class);
+	//private final static Logger slf4jLogger = LoggerFactory.getLogger(StatisticsSvc.class);
 
 	public static Object getBasicStats(Request pRequest, Response pResponse) {
 
+		//slf4jLogger.info("getBasicStats");
+		
 		JsonObject json = new JsonObject();
 
 		json.addProperty("books", 1);
