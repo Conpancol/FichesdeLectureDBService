@@ -31,6 +31,7 @@ import co.phystech.aosorio.models.ExtQuotedMaterials;
 import co.phystech.aosorio.models.Materials;
 import co.phystech.aosorio.models.QuotedMaterials;
 import co.phystech.aosorio.models.Quotes;
+import co.phystech.aosorio.services.OpenExchangeSvc;
 import spark.Request;
 import spark.Response;
 
@@ -203,6 +204,8 @@ public class QuotesController {
 		List<QuotedMaterials> materialList = quote.getMaterialList();
 		Iterator<QuotedMaterials> itr = materialList.iterator();
 
+		double usdTRM = OpenExchangeSvc.getUSDTRM();
+		
 		while (itr.hasNext()) {
 
 			QuotedMaterials material = itr.next();
@@ -215,8 +218,9 @@ public class QuotesController {
 			Date now = new Date();
 			DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 			String updateDate = formatter.format(now);
-			quotedMaterial.setUpdateDate(updateDate);
-					
+			quotedMaterial.setUpdateDate(updateDate);								
+			quotedMaterial.setUsdTRM(usdTRM);
+			
 			ExtQuotedMaterialsController.create(quotedMaterial);
 			
 		}
