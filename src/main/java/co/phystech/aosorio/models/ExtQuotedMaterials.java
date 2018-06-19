@@ -42,8 +42,10 @@ public class ExtQuotedMaterials extends QuotedMaterials {
 		this.setQuantity(material.getQuantity());
 		this.setTheoreticalWeight(material.getTheoreticalWeight());
 		this.setGivenWeight(material.getGivenWeight());
-		this.setUnitPrice(material.getUnitPrice());
+		this.setUnitPrice(material.getUnitPrice());		
 		this.setTotalPrice(material.getTotalPrice());
+		this.setCurrency(material.getCurrency());
+		this.setCountryOrigin(material.getCountryOrigin());
 		this.setNote(material.getNote());
 				
 	}
