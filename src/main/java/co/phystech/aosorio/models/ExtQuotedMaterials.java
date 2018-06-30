@@ -19,11 +19,8 @@ public class ExtQuotedMaterials extends QuotedMaterials {
 	private ObjectId id;
 
 	private String providerId;
-
 	private String providerName;
-	
 	private String updateDate;
-	
 	private double usdTRM;
 
 	public ExtQuotedMaterials() {

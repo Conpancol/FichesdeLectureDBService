@@ -31,6 +31,7 @@ import co.phystech.aosorio.models.ExtQuotedMaterials;
 import co.phystech.aosorio.models.Materials;
 import co.phystech.aosorio.models.QuotedMaterials;
 import co.phystech.aosorio.models.Quotes;
+import co.phystech.aosorio.services.GeneralSvc;
 import co.phystech.aosorio.services.OpenExchangeSvc;
 import spark.Request;
 import spark.Response;
@@ -94,11 +95,15 @@ public class QuotesController {
 		List<Quotes> result = query.field("providerCode").equal(quote.getProviderCode()).asList();
 
 		if (result.isEmpty()) {
-			slf4jLogger.info("RFQ not found " + quote.getInternalCode());
+			slf4jLogger.info("Quote not found " + quote.getInternalCode());
 			slf4jLogger.info("Size of material list " + String.valueOf(quote.getMaterialList().size()));
+			
 			// ...check for missing material information and remove materials
 			// not in DB
 			updateMaterialList(quote);
+			
+			//
+			calculateMaterialWeights(quote);
 			
 			// ...save quoted materials in its own collection
 			saveQuotedMaterials(quote);
@@ -109,6 +114,7 @@ public class QuotesController {
 		return null;
 
 	}
+
 
 	public static Object read(Request pRequest, Response pResponse) {
 
@@ -226,5 +232,27 @@ public class QuotesController {
 		}
 		
 	}
+	
+	private static void calculateMaterialWeights(Quotes quote) {
+		
+		slf4jLogger.debug("Entering calculateMaterialWeights");
+				
+		List<QuotedMaterials> materialList = quote.getMaterialList();
+		Iterator<QuotedMaterials> itr = materialList.iterator();
+
+		while (itr.hasNext()) {
+
+			QuotedMaterials material = itr.next();
+			String itemCode = material.getItemcode();
+		
+			slf4jLogger.debug(itemCode);
+			double theoreticalWeight = GeneralSvc.calculateMaterialWeight( material );
+			material.setTheoreticalWeight(theoreticalWeight);
+			
+			
+		}
+		
+	}
+
 	
 }

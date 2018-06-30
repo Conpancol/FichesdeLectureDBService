@@ -6,6 +6,7 @@ package materialsdbsvc;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.util.function.Supplier;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -14,6 +15,9 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
+import co.phystech.aosorio.models.QuotedMaterials;
+import co.phystech.aosorio.services.Formula;
+import co.phystech.aosorio.services.FormulaFactory;
 import co.phystech.aosorio.services.GeneralSvc;
 import co.phystech.aosorio.services.OpenExchangeSvc;
 import co.phystech.aosorio.services.StatisticsSvc;
@@ -91,6 +95,53 @@ public class ServicesTest {
 		slf4jLogger.info(String.valueOf(usdTRM));
 		assertTrue(true);
 		
+		
+	}
+	
+	@Test
+	public void formulasTest() {
+			
+		Supplier<FormulaFactory> formulaFactory =  FormulaFactory::new;
+		
+		Formula formula = formulaFactory.get().getFormula("CYLINDERVOL");
+		
+		slf4jLogger.info(formula.getName());
+		
+		formula.addVariable("OD", 8.0);
+		formula.addVariable("ID", 4.0);
+		formula.addVariable("H", 10.0);
+		
+		double vol1 = formula.eval();
+
+		assertEquals(376.991, vol1, 0.01);
+		
+		formula.addVariable("OD", 8.0);
+		formula.addVariable("H", 10.0);
+		
+		double vol2 = formula.eval();
+
+		assertEquals(502.654, vol2, 0.01);
+		
+	}
+
+	
+	@Test
+	public void weightCalculationTest() {
+		
+		QuotedMaterials material = new QuotedMaterials();
+		material.setDescription("PIPE,SS316L, 1\", STANDARD,SMLS,SA312,SCH40");
+		material.setDimensions("1\",SCH40");
+		material.setCategory("PIPE");
+		material.setType("SS");
+		material.setQuantity(12);
+			
+		Supplier<FormulaFactory> formulaFactory =  FormulaFactory::new;
+		
+		Formula formula = formulaFactory.get().getFormula("CYLINDERVOL");
+		
+		slf4jLogger.info(formula.getName());
+		
+		assertTrue(true);
 		
 	}
 

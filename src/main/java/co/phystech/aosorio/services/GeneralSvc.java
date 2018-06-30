@@ -22,6 +22,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
+import co.phystech.aosorio.models.QuotedMaterials;
 import spark.ResponseTransformer;
 
 /**
@@ -125,6 +126,15 @@ public class GeneralSvc {
 			return null;
 		
 		}
+
+	}
+
+	public static double calculateMaterialWeight(QuotedMaterials material) {
+		
+		String dimensions = material.getDimensions();
+				
+	
+		return 0.0;
 
 	}
 

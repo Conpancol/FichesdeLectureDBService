@@ -15,27 +15,16 @@ public class Quotes {
     private ObjectId id;
 	
 	private int internalCode;
-	
 	private int externalCode;
-	
 	private String providerCode;
-	
 	private String receivedDate;
-	
 	private String processedDate;
-	
 	private String sentDate;
-	
 	private String user;
-	
 	private String providerId;
-	
 	private String providerName;
-	
 	private String contactName;
-	
 	private String incoterms;
-	
 	private String note;
 	
 	@Embedded

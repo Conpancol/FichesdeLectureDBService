@@ -19,22 +19,14 @@ import org.mongodb.morphia.annotations.Id;
 public class RequestForQuotes {
 	
 	@Id
-    private ObjectId id;
-	
+    private ObjectId id;	
 	private int internalCode;
-	
 	private int externalCode;
-	
 	private String receivedDate;
-	
 	private String processedDate;
-	
 	private String user;
-	
 	private String sender;
-	
 	private String company;
-	
 	private String note;
 	
 	@Embedded
