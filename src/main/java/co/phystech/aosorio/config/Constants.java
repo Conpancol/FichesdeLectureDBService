@@ -18,4 +18,7 @@ public class Constants {
 	
 	public static final String LOGIN_SERVICE = "https://rugged-yosemite-61189.herokuapp.com/";
 	
+	public static final double UNIT_MM_to_M = 0.001;
+	public static final double UNIT_KG_o_M3 = 1000.0;
+	
 }

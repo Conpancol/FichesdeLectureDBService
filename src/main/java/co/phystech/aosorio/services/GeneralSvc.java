@@ -27,8 +27,6 @@ import co.phystech.aosorio.config.Constants;
 import co.phystech.aosorio.models.QuotedMaterials;
 import spark.ResponseTransformer;
 
-import co.phystech.aosorio.config.Constants;
-
 /**
  * @author AOSORIO
  *
@@ -150,6 +148,15 @@ public class GeneralSvc {
 
 			return volume*density;
 
+		} else if ( material.getCategory().equals("PLATE") ) {
+			
+			
+		} else if ( material.getCategory().equals("BAR")) {
+			
+			
+		} else if ( material.getCategory().equals("ANGLE")) {
+			
+			
 		}
 	
 		return 0.0;

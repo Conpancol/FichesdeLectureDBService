@@ -93,4 +93,15 @@ public class ExtQuotedMaterialsController {
 		return datastore.createUpdateOperations(ExtQuotedMaterials.class);
 	}
 	
+	public static List<ExtQuotedMaterials> read(String category) {
+
+		datastore = NoSqlController.getInstance().getDatabase();
+		
+		Query<ExtQuotedMaterials> query = datastore.createQuery(ExtQuotedMaterials.class);		
+		List<ExtQuotedMaterials> result = query.field("category").equal(category).asList();
+
+		return result;
+
+	}
+
 }

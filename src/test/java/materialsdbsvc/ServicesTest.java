@@ -23,7 +23,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.stream.JsonReader;
 
+import co.phystech.aosorio.controllers.ExtQuotedMaterialsController;
 import co.phystech.aosorio.controllers.NoSqlController;
+import co.phystech.aosorio.models.ExtQuotedMaterials;
 import co.phystech.aosorio.models.Materials;
 import co.phystech.aosorio.models.QuotedMaterials;
 import co.phystech.aosorio.services.Formula;
@@ -183,6 +185,25 @@ public class ServicesTest {
 	}
 
 	@Test
+	public void theoreticalWeightsTest() {
+		
+		List<ExtQuotedMaterials> pipes = ExtQuotedMaterialsController.read("PIPE");
+		Iterator<ExtQuotedMaterials> itrPipes = pipes.iterator();
+		
+		while(itrPipes.hasNext()) {
+			ExtQuotedMaterials material = itrPipes.next();
+			double weight = GeneralSvc.calculateMaterialWeight(material);
+			String info = "* " + material.getItemcode() +
+					"\t" + material.getDimensions() +
+					"\t" + material.getType() +
+					"\t" + String.format("%.2f", weight) +
+					"\t" + String.valueOf(material.getGivenWeight());
+					
+			slf4jLogger.info(info);
+		}
+	}
+	
+	@Test
 	public void scheduleFinderTest() {
 
 		datastore = NoSqlController.getInstance().getDatabase();
@@ -198,8 +219,9 @@ public class ServicesTest {
 
 			double outerDiam = Utilities.getODMM(material);
 			double innerDiam = Utilities.getIDMM(material);
-			String info = material.getDimensions() + "\t" + String.valueOf(outerDiam) + "\t"
-					+ String.valueOf(innerDiam);
+			String info = material.getDimensions() 
+					+ "\t" + String.format("%.2f",outerDiam) 
+					+ "\t" + String.format("%.2f", innerDiam);
 			slf4jLogger.info(info);
 
 		}
