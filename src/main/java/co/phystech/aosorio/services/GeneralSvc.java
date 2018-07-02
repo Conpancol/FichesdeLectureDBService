@@ -12,6 +12,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +23,11 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
+import co.phystech.aosorio.config.Constants;
 import co.phystech.aosorio.models.QuotedMaterials;
 import spark.ResponseTransformer;
+
+import co.phystech.aosorio.config.Constants;
 
 /**
  * @author AOSORIO
@@ -130,9 +134,23 @@ public class GeneralSvc {
 	}
 
 	public static double calculateMaterialWeight(QuotedMaterials material) {
-		
-		String dimensions = material.getDimensions();
 				
+		if( material.getCategory().equals("PIPE") || material.getCategory().equals("TUBE")) {
+			
+			Supplier<FormulaFactory> formulaFactory = FormulaFactory::new;
+
+			Formula formula = formulaFactory.get().getFormula("CYLINDERVOL");
+
+			formula.addVariable("OD", Utilities.getODMM(material)*Constants.UNIT_MM_to_M);
+			formula.addVariable("ID", Utilities.getIDMM(material)*Constants.UNIT_MM_to_M);
+			formula.addVariable("H" , material.getQuantity());
+
+			double volume = formula.eval();
+			double density = Utilities.getDensity(material.getType()) * Constants.UNIT_KG_o_M3;
+
+			return volume*density;
+
+		}
 	
 		return 0.0;
 
