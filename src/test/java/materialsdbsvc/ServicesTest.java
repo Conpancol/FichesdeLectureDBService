@@ -111,7 +111,7 @@ public class ServicesTest {
 
 	}
 
-	//////@Test
+	@Test
 	public void openExchangeTest() {
 
 		double usdTRM = OpenExchangeSvc.getUSDTRM();
@@ -400,9 +400,9 @@ public class ServicesTest {
 			
 			double weight = GeneralSvc.calculateMaterialWeight(quoted);
 			
-			slf4jLogger.info("*CHANNEL*: " + material.getDimensions());
+			slf4jLogger.debug("*CHANNEL*: " + material.getDimensions());
 			
-			slf4jLogger.info("*CHANNEL*: " + quoted.getType() + "\t" 
+			slf4jLogger.debug("*CHANNEL*: " + quoted.getType() + "\t" 
 					+ String.format("%.2f", dims.get(0)) + "\t"
 					+ String.format("%.2f", dims.get(1)) + "\t" 
 					+ String.format("%.2f", dims.get(2)) + "\t" 
