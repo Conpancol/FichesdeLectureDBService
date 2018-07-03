@@ -18,6 +18,7 @@ public class FormulaFactory {
 	static {
 	    map.put("CYLINDERVOL", CylinderVolume::new);
 	    map.put("CUBEVOL", CubeVolume::new);
+	    map.put("BEAMVOL", BeamVolume::new);
 	  } 
 	
 	  public Formula getFormula(String formulaType){

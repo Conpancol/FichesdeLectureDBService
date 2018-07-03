@@ -39,7 +39,7 @@ public class CubeVolume implements Formula {
 		
 		double x1 = variables.get("W");
 		double x2 = variables.get("H");
-		double x3 = variables.get("LENGHT");
+		double x3 = variables.get("L");
 		
 		reset();
 		return x1*x2*x3;
@@ -48,6 +48,12 @@ public class CubeVolume implements Formula {
 	
 	void reset() {
 		variables.clear();
+	}
+
+	@Override
+	public void setSelector(String name, boolean x1) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

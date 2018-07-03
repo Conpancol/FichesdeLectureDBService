@@ -59,5 +59,11 @@ public class CylinderVolume implements Formula {
 		variables.clear();
 		hasInnerDiameter = false;
 	}
+
+	@Override
+	public void setSelector(String name, boolean x1) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

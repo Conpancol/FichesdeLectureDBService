@@ -13,6 +13,8 @@ public interface Formula {
 	
 	void addVariable(String name, double x1);
 	
+	void setSelector(String name, boolean x1);
+	
 	double eval();
 	
 	

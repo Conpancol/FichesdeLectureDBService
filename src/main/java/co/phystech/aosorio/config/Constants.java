@@ -20,5 +20,7 @@ public class Constants {
 	
 	public static final double UNIT_MM_to_M = 0.001;
 	public static final double UNIT_KG_o_M3 = 1000.0;
+	public static final double UNIT_INCH_to_MM = 25.4;
+	public static final double UNIT_MM2_to_M2 = 0.000001;
 	
 }

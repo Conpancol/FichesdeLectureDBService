@@ -46,7 +46,7 @@ public class OpenExchangeSvc {
 		
 		try {
 			JsonObject json = GeneralSvc.readJsonFromUrl(builder.toString());
-			slf4jLogger.info(json.toString());
+			slf4jLogger.debug(json.toString());
 			
 			JsonParser parser = new JsonParser();
 			JsonObject symbols = parser.parse(json.get("rates").toString()).getAsJsonObject();

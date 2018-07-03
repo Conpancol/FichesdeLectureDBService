@@ -106,7 +106,7 @@ public class GeneralSvc {
 
 			int responseCode = request.getResponseCode();
 
-			slf4jLogger.info(String.valueOf(responseCode));
+			slf4jLogger.debug(String.valueOf(responseCode));
 
 			BufferedReader rd = new BufferedReader(new InputStreamReader(request.getInputStream()));
 
@@ -124,7 +124,7 @@ public class GeneralSvc {
 
 		} catch (JsonSyntaxException ex) {
 			
-			slf4jLogger.info(ex.getLocalizedMessage());
+			slf4jLogger.debug(ex.getLocalizedMessage());
 			return null;
 		
 		}
@@ -133,10 +133,10 @@ public class GeneralSvc {
 
 	public static double calculateMaterialWeight(QuotedMaterials material) {
 				
+		Supplier<FormulaFactory> formulaFactory = FormulaFactory::new;
+		
 		if( material.getCategory().equals("PIPE") || material.getCategory().equals("TUBE")) {
 			
-			Supplier<FormulaFactory> formulaFactory = FormulaFactory::new;
-
 			Formula formula = formulaFactory.get().getFormula("CYLINDERVOL");
 
 			formula.addVariable("OD", Utilities.getODMM(material)*Constants.UNIT_MM_to_M);
@@ -148,18 +148,104 @@ public class GeneralSvc {
 
 			return volume*density;
 
-		} else if ( material.getCategory().equals("PLATE") ) {
+		} else if ( material.getCategory().contains("PLATE") ) {
 			
+			Formula formula = formulaFactory.get().getFormula("CUBEVOL");
 			
+			ArrayList<Double> dims = Utilities.getPlateDimsMM(material);
+			
+			formula.addVariable("H", dims.get(0)*Constants.UNIT_MM_to_M);
+			formula.addVariable("W", dims.get(1)*Constants.UNIT_MM_to_M);
+			formula.addVariable("L", dims.get(2)*Constants.UNIT_MM_to_M);
+			
+			double volume = formula.eval();
+			double density = Utilities.getDensity(material.getType()) * Constants.UNIT_KG_o_M3;
+
+			double plateAreaMM2 = dims.get(1)*dims.get(2);
+			double quantity = Utilities.getNumberOfPlates(plateAreaMM2, material.getQuantity());
+			
+			slf4jLogger.debug("*PLATE*: " + String.valueOf(volume) + " " + String.valueOf(density) + " " + String.valueOf(quantity));
+			
+			return volume*density*quantity;
+			
+						
 		} else if ( material.getCategory().equals("BAR")) {
 			
+			Formula formula = formulaFactory.get().getFormula("CYLINDERVOL");
+			
+			if( Utilities.isHollowBar(material)) {
+				
+				ArrayList<Double> dims = Utilities.getHollowBarDimsMM(material);
+				
+				formula.addVariable("ID", dims.get(0)*Constants.UNIT_MM_to_M);
+				formula.addVariable("OD", dims.get(1)*Constants.UNIT_MM_to_M);
+				formula.addVariable("H" , material.getQuantity());
+				
+				double volume = formula.eval();
+				double density = Utilities.getDensity(material.getType()) * Constants.UNIT_KG_o_M3;
+
+				return volume*density;
+								
+			} else { 
+				
+				formula.addVariable("OD", Utilities.getBarODMM(material)*Constants.UNIT_MM_to_M);
+				formula.addVariable("H" , material.getQuantity());
+				
+				double volume = formula.eval();
+				double density = Utilities.getDensity(material.getType()) * Constants.UNIT_KG_o_M3;
+
+				return volume*density;
+			}
+			
+		} else if ( material.getCategory().equals("CHANNEL") || material.getCategory().equals("BEAM") ) {
+			
+			Formula formula = formulaFactory.get().getFormula("BEAMVOL");
+			formula.setSelector("CHANNEL", true);
+			
+			ArrayList<Double> dims = null;
+			
+			try {
+				dims = Utilities.getBeamDimsINCH(material);
+			} catch ( NullPointerException ex) {
+				dims = Utilities.getBeamDimsMM(material);
+			}
+			
+			formula.addVariable("s", dims.get(0)*Constants.UNIT_MM_to_M);
+			formula.addVariable("B", dims.get(1)*Constants.UNIT_MM_to_M);
+			formula.addVariable("H", dims.get(2)*Constants.UNIT_MM_to_M);	
+			formula.addVariable("L" , material.getQuantity());
+			
+			double volume = formula.eval();
+			double density = Utilities.getDensity(material.getType()) * Constants.UNIT_KG_o_M3;
+
+			return volume*density;
 			
 		} else if ( material.getCategory().equals("ANGLE")) {
 			
+			Formula formula = formulaFactory.get().getFormula("BEAMVOL");
+			formula.setSelector("ANGLE", true);
 			
+			ArrayList<Double> dims = null;
+			
+			try {
+				dims = Utilities.getBeamDimsINCH(material);
+			} catch ( NullPointerException ex) {
+				dims = Utilities.getBeamDimsMM(material);
+			}
+			
+			formula.addVariable("s", dims.get(0)*Constants.UNIT_MM_to_M);
+			formula.addVariable("B", dims.get(1)*Constants.UNIT_MM_to_M);
+			formula.addVariable("C", dims.get(2)*Constants.UNIT_MM_to_M);	
+			formula.addVariable("L" , material.getQuantity());
+			
+			double volume = formula.eval();
+			double density = Utilities.getDensity(material.getType()) * Constants.UNIT_KG_o_M3;
+
+			return volume*density;
+						
 		}
 	
-		return 0.0;
+		return -1.0;
 
 	}
 
