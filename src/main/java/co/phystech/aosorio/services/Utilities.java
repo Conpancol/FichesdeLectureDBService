@@ -23,9 +23,12 @@ import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 
 import co.phystech.aosorio.config.Constants;
+import co.phystech.aosorio.controllers.FittingsController;
 import co.phystech.aosorio.controllers.PipeSchedulesController;
+import co.phystech.aosorio.models.Fittings;
 import co.phystech.aosorio.models.Materials;
 import co.phystech.aosorio.models.PipeSchedules;
+import co.phystech.aosorio.models.QuotedMaterials;
 
 /**
  * @author AOSORIO
@@ -359,6 +362,20 @@ public class Utilities {
 		}
 
 		return 0.0;
+	}
+
+	public static double getFittingWeight(QuotedMaterials material) {
+		
+		String category = material.getCategory();
+		String dimensions = material.getDimensions();
+
+		Fittings fitting = FittingsController.read(category, dimensions);
+		
+		if( fitting != null) 
+			return 1.0;
+		
+		return 0.0;
+		
 	}
 
 }

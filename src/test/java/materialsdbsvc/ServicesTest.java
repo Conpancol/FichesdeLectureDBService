@@ -454,4 +454,31 @@ public class ServicesTest {
 		}
 
 	}
+	
+	@Test
+	public void platesVolumeCalculationTest() {
+
+		QuotedMaterials quoted = new QuotedMaterials();
+		quoted.setDescription("PLATE, SS316L, 4' X 8' X 1/32\", 1219.2MM X 2438.4MM X 0.79MM");
+		quoted.setDimensions("4' X 8' X 1/32\", 1219.2MM X 2438.4MM X 0.79MM");
+		quoted.setCategory("PLATE");
+		quoted.setType("SS");
+		quoted.setQuantity(11.88);
+		quoted.setUnit("M2");
+		
+		ArrayList<Double> dims = Utilities.getPlateDimsMM(quoted);
+
+		double weight = GeneralSvc.calculateMaterialWeight(quoted);
+			
+		slf4jLogger.info("*PLATE*: " + quoted.getDimensions());
+		
+		slf4jLogger.info("*PLATE*: " + quoted.getType() + "\t" 
+				+ String.valueOf(dims.get(0)) + "\t"
+				+ String.valueOf(dims.get(1)) + "\t" 
+				+ String.valueOf(dims.get(2)) + "\t" 
+				+ String.valueOf(weight));
+			
+	}
+	
+	
 }

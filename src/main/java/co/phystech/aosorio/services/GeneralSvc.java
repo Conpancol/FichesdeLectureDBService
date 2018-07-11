@@ -11,6 +11,7 @@ import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.function.Supplier;
 
@@ -162,7 +163,13 @@ public class GeneralSvc {
 			double density = Utilities.getDensity(material.getType()) * Constants.UNIT_KG_o_M3;
 
 			double plateAreaMM2 = dims.get(1)*dims.get(2);
-			double quantity = Utilities.getNumberOfPlates(plateAreaMM2, material.getQuantity());
+			
+			double quantity = 0.0;
+			
+			if( material.getUnit().equals("EA"))
+				quantity = material.getQuantity();
+			else if( material.getUnit().equals("M2")) 
+				quantity = Utilities.getNumberOfPlates(plateAreaMM2, material.getQuantity());
 			
 			slf4jLogger.debug("*PLATE*: " + String.valueOf(volume) + " " + String.valueOf(density) + " " + String.valueOf(quantity));
 			
@@ -243,6 +250,13 @@ public class GeneralSvc {
 
 			return volume*density;
 						
+		} else if (Arrays.asList(Constants.FITTINGS_LIST).contains(material.getCategory())) {
+			
+			double weight = Utilities.getFittingWeight(material);
+			double quantity = material.getQuantity();
+			
+			return weight*quantity;
+			
 		}
 	
 		return -1.0;
