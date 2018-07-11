@@ -9,9 +9,9 @@ package co.phystech.aosorio.config;
  */
 public class Constants {
 
-	public static final String CONFIG_FILE = "src/main/resources/config.properties";
+	public static final String CONFIG_FILE = "config.properties";
 	
-	public static final String PROD_CONFIG_FILE = "src/main/resources/atlas.properties";
+	public static final String CONFIG_DENSITIES_FILE = "materials.json";
 	
 	public static final int HTTP_OK = 200;
 	public static final int HTTP_BAD_REQUEST = 400;

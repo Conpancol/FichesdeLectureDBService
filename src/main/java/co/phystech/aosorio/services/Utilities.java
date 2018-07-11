@@ -344,7 +344,9 @@ public class Utilities {
 
 		try {
 
-			JsonReader jsonReader = new JsonReader(new FileReader("src/main/resources/materials.json"));
+			//JsonReader jsonReader = new JsonReader(new FileReader(Constants.CONFIG_DENSITIES_FILE));
+			JsonReader jsonReader = new JsonReader(new FileReader(ClassLoader.getSystemResource(Constants.CONFIG_DENSITIES_FILE).getPath()));
+			
 			jsonReader.beginArray();
 			Gson gson = new Gson();
 
@@ -357,8 +359,8 @@ public class Utilities {
 			jsonReader.endArray();
 			jsonReader.close();
 
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException ex) {
+			slf4jLogger.info(ex.getMessage());
 		}
 
 		return 0.0;

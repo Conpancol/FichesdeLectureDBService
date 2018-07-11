@@ -43,7 +43,7 @@ public class CfgController {
 
 		try {
 
-			input = new FileInputStream(pConfig);
+			input = new FileInputStream(ClassLoader.getSystemResource(pConfig).getPath());
 
 			// load a properties file
 			prop.load(input);
@@ -82,7 +82,8 @@ public class CfgController {
 
 		} catch (IOException ex) {
 
-			ex.printStackTrace();
+			slf4jLogger.info(ex.getMessage());
+			slf4jLogger.info("will use the default values");
 			dbEnv = "local";
 			dbServerUrl = "localhost";
 			dbPort = "27017";
@@ -92,8 +93,8 @@ public class CfgController {
 			if (input != null) {
 				try {
 					input.close();
-				} catch (IOException e) {
-					e.printStackTrace();
+				} catch (IOException ex) {
+					slf4jLogger.info(ex.getMessage());;
 				}
 			}
 		}

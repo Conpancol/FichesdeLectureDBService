@@ -1,1 +1,9 @@
-[ { "type" : "SS", "density" : 8000.0 },{"type" : "HASTELLOY", "density" : 1.0 },{"type" : "CS", "density" : 1.0 }]
+[ { "type" : "SS", "density" : 8.0 },
+  { "type" : "HASTELLOY", "density" : 8.94 },
+  { "type" : "CS", "density" : 7.85 },
+  { "type" : "TITANIUM", "density" : 4.5},
+  { "type" : "IRON", "density" : 7.85},
+  { "type" : "ALLOY", "density" : 8.05},
+  { "type" : "STEEL", "density" : 8.0 },
+  { "type" : "ALUMINUM", "density" : 4.51 }
+  ]

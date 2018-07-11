@@ -237,7 +237,7 @@ public class ServicesTest {
 
 		try {
 
-			JsonReader jsonReader = new JsonReader(new FileReader("src/test/resources/materials.json"));
+			JsonReader jsonReader = new JsonReader(new FileReader(ClassLoader.getSystemResource(Constants.CONFIG_DENSITIES_FILE).getPath()));
 			jsonReader.beginArray();
 			Gson gson = new Gson();
 
@@ -246,9 +246,9 @@ public class ServicesTest {
 				Densities item = gson.fromJson(jsonReader, Densities.class);
 				assertEquals(types.get(idx), item.type);
 				idx += 1;
+				if( idx == types.size()) break;
 			}
 
-			jsonReader.endArray();
 			jsonReader.close();
 
 		} catch (IOException e) {
@@ -261,6 +261,7 @@ public class ServicesTest {
 	@Test
 	public void getDensityTest() {
 
+		slf4jLogger.info(String.valueOf(Utilities.getDensity("SS")));
 		assertEquals(8.00, Utilities.getDensity("SS"), 0.001);
 		assertEquals(8.94, Utilities.getDensity("HASTELLOY"), 0.001);
 		assertEquals(7.85, Utilities.getDensity("CS"), 0.001);
@@ -352,6 +353,7 @@ public class ServicesTest {
 			quoted.setCategory(material.getCategory());
 			quoted.setType(material.getType());
 			quoted.setQuantity(100.0);
+			quoted.setUnit("M2");;
 			
 			ArrayList<Double> dims = Utilities.getPlateDimsMM(material);
 
