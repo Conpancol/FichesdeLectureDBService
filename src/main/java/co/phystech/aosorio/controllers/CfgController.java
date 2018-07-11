@@ -49,7 +49,10 @@ public class CfgController {
 			prop.load(input);
 
 			// get the property value and print it out
-			dbEnv = prop.getProperty("db.env");
+			if( System.getenv("DBENV") != null ) {
+				dbEnv = System.getenv("DBENV");
+			} else
+				dbEnv = prop.getProperty("db.env");
 			dbType = prop.getProperty("db.type");
 			dbName = prop.getProperty("db.name");
 			dbHost = prop.getProperty("db.host");
