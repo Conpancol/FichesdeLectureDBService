@@ -22,18 +22,19 @@ public class FittingsController {
 
 	private static Datastore datastore;
 
-	public static Fittings read(String category, String schedule) {
+	public static Fittings read(String category, String schedule, String pipeSize) {
 
 		datastore = NoSqlController.getInstance().getDatabase();
 		
 		Query<Fittings> query = datastore.createQuery(Fittings.class);
 		//... slf4jLogger.info(code + "\t" + schDiameter);
 		
-		List<Fittings> result = query.field("category").equal(category).field("schedule").equal(schedule).asList();
+		List<Fittings> result = query.field("category").equal(category).
+				field("schedule").contains(schedule).field("pipeSize").equal(pipeSize).asList();
 
-		if (result.isEmpty())
+		if (result.isEmpty()) {
 			return null;
-		else {
+		} else {
 			slf4jLogger.debug("Fitting found");
 			return result.get(0);
 		}

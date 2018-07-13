@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -231,7 +232,7 @@ public class Utilities {
 		return parseMultipleDimensions(dimensionsMM);
 
 	}
-	
+
 	public static double getNumberOfPlates(double plateAreaMM2, double quantityM2) {
 
 		double plateAreaM2 = plateAreaMM2 * Constants.UNIT_MM2_to_M2;
@@ -281,19 +282,19 @@ public class Utilities {
 		FractionFormat ff = new FractionFormat();
 
 		try {
-			
+
 			Fraction fraction = ff.parse(dimension);
 			result = fraction.doubleValue() * Constants.UNIT_INCH_to_MM;
-		
+
 		} catch (MathParseException ex) {
 
 			List<String> dims = Arrays.asList(dimension.split("-"));
 			Fraction value_one = ff.parse(dims.get(0));
 			Fraction value_two = ff.parse(dims.get(1));
-			
+
 			result += value_one.doubleValue() * Constants.UNIT_INCH_to_MM;
 			result += value_two.doubleValue() * Constants.UNIT_INCH_to_MM;
-			
+
 		}
 
 		return result;
@@ -344,9 +345,11 @@ public class Utilities {
 
 		try {
 
-			//JsonReader jsonReader = new JsonReader(new FileReader(Constants.CONFIG_DENSITIES_FILE));
-			JsonReader jsonReader = new JsonReader(new FileReader(ClassLoader.getSystemResource(Constants.CONFIG_DENSITIES_FILE).getPath()));
-			
+			// JsonReader jsonReader = new JsonReader(new
+			// FileReader(Constants.CONFIG_DENSITIES_FILE));
+			JsonReader jsonReader = new JsonReader(
+					new FileReader(ClassLoader.getSystemResource(Constants.CONFIG_DENSITIES_FILE).getPath()));
+
 			jsonReader.beginArray();
 			Gson gson = new Gson();
 
@@ -366,18 +369,78 @@ public class Utilities {
 		return 0.0;
 	}
 
-	public static double getFittingWeight(QuotedMaterials material) {
-		
-		String category = material.getCategory();
-		String dimensions = material.getDimensions();
+	public static double getFittingWeight(QuotedMaterials material, String[] categories, int nmatch) {
 
-		Fittings fitting = FittingsController.read(category, dimensions);
+		try {
+
+			for (String category : categories) {
+
+				boolean xcheck = checkFittingCategory(category, material.getDescription(), nmatch);
+
+				if (xcheck) {
+
+					String schedule = getPipeSchedule(material);
+					if (schedule != null) {
+						String pipeSize = getDimensionINCH(material).get(0);
+						Fittings fitting = FittingsController.read(category, schedule, pipeSize);
+						if (fitting != null)
+							return fitting.getWeight();
+						else
+							slf4jLogger.debug("not found" + category + pipeSize + schedule);
+					}
+				} else { 
+					
+				}
+			}
+
+		} catch (Exception ex) {
+			slf4jLogger.info(ex.getMessage());
+		}
+
+		return -2.0;
+
+	}
+
+	public static boolean checkFittingCategory(String category, String description, int nmatch) {
+
+		String clean_dsc = description.replaceAll("[^a-zA-Z0-9\",]", "").replace("LONGRADIUS","LR").replace("SHORTRADIUS","SR");
 		
-		if( fitting != null) 
-			return 1.0;
-		
-		return 0.0;
-		
+		HashSet<String> hash_dsc = new HashSet<>(Arrays.asList(clean_dsc.split(",")));
+		String[] tokens = category.split(",");
+
+		int count = 0;
+		for (String token : tokens) {
+			if (hash_dsc.contains(token))
+				count += 1;
+		}
+
+		if (count == nmatch)
+			return true;
+
+		return false;
+
+	}
+
+	/**
+	 * @param dimensions:
+	 *            as in the DB
+	 * @return the dimension string
+	 */
+	public static ArrayList<String> getDimensionINCH(QuotedMaterials material) {
+
+		String clean_dsc = material.getDimensions().replaceAll(" ", "");
+
+		HashSet<String> hash_dsc = new HashSet<>(Arrays.asList(clean_dsc.split(",")));
+
+		ArrayList<String> result = new ArrayList<String>();
+
+		for (String temp : hash_dsc) {
+			if (temp.contains("\""))
+				result.add(temp);
+		}
+
+		return result;
+
 	}
 
 }

@@ -25,4 +25,11 @@ public class Constants {
 	
 	public static final String[] FITTINGS_LIST = {"ELBOW", "TEE", "REDUCER", "CAP"}; 
 	
+	public static final String[] FITTING_ELBOWS = {"ELBOW,45,LR","ELBOW,90,LR","ELBOW,90,SR"};
+	public static final String[] FITTING_REDUCERS = {"REDUCER,CONCENTRIC","REDUCER,ECCENTRIC"};
+	public static final String[] FITTING_TEES = {"TEE,EQUAL","TEE,REDUCING"};
+	public static final String[] FITTING_STUBENDS = {"STUB-END,SHORT LENGTH,SL"};
+	public static final String[] FITTING_CAPS = {"CAP,END-CAP"};
+	
+	
 }

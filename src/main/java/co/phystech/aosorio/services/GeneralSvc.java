@@ -252,10 +252,13 @@ public class GeneralSvc {
 						
 		} else if (Arrays.asList(Constants.FITTINGS_LIST).contains(material.getCategory())) {
 			
-			double weight = Utilities.getFittingWeight(material);
-			double quantity = material.getQuantity();
+			if ( material.getCategory().equals("ELBOW")) {
+				
+				double weight = Utilities.getFittingWeight(material, Constants.FITTING_ELBOWS, 3);
+				double quantity = material.getQuantity();
+				return weight*quantity;
 			
-			return weight*quantity;
+			}
 			
 		}
 	

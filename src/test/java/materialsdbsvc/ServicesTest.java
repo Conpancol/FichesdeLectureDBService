@@ -25,8 +25,10 @@ import com.google.gson.stream.JsonReader;
 
 import co.phystech.aosorio.config.Constants;
 import co.phystech.aosorio.controllers.ExtQuotedMaterialsController;
+import co.phystech.aosorio.controllers.FittingsController;
 import co.phystech.aosorio.controllers.NoSqlController;
 import co.phystech.aosorio.models.ExtQuotedMaterials;
+import co.phystech.aosorio.models.Fittings;
 import co.phystech.aosorio.models.Materials;
 import co.phystech.aosorio.models.QuotedMaterials;
 import co.phystech.aosorio.services.Formula;
@@ -237,7 +239,8 @@ public class ServicesTest {
 
 		try {
 
-			JsonReader jsonReader = new JsonReader(new FileReader(ClassLoader.getSystemResource(Constants.CONFIG_DENSITIES_FILE).getPath()));
+			JsonReader jsonReader = new JsonReader(
+					new FileReader(ClassLoader.getSystemResource(Constants.CONFIG_DENSITIES_FILE).getPath()));
 			jsonReader.beginArray();
 			Gson gson = new Gson();
 
@@ -246,7 +249,8 @@ public class ServicesTest {
 				Densities item = gson.fromJson(jsonReader, Densities.class);
 				assertEquals(types.get(idx), item.type);
 				idx += 1;
-				if( idx == types.size()) break;
+				if (idx == types.size())
+					break;
 			}
 
 			jsonReader.close();
@@ -353,24 +357,22 @@ public class ServicesTest {
 			quoted.setCategory(material.getCategory());
 			quoted.setType(material.getType());
 			quoted.setQuantity(100.0);
-			quoted.setUnit("M2");;
-			
+			quoted.setUnit("M2");
+			;
+
 			ArrayList<Double> dims = Utilities.getPlateDimsMM(material);
 
 			double weight = GeneralSvc.calculateMaterialWeight(quoted);
-			
+
 			slf4jLogger.debug("*PLATE*: " + material.getDimensions());
-			
-			slf4jLogger.debug("*PLATE*: " + quoted.getType() + "\t" 
-					+ String.valueOf(dims.get(0)) + "\t"
-					+ String.valueOf(dims.get(1)) + "\t" 
-					+ String.valueOf(dims.get(2)) + "\t" 
-					+ String.valueOf(weight));
+
+			slf4jLogger.debug("*PLATE*: " + quoted.getType() + "\t" + String.valueOf(dims.get(0)) + "\t"
+					+ String.valueOf(dims.get(1)) + "\t" + String.valueOf(dims.get(2)) + "\t" + String.valueOf(weight));
 
 		}
 
 	}
-	
+
 	@Test
 	public void channelVolumeTest() {
 
@@ -391,29 +393,27 @@ public class ServicesTest {
 			quoted.setCategory(material.getCategory());
 			quoted.setType(material.getType());
 			quoted.setQuantity(100.0);
-			
+
 			ArrayList<Double> dims = null;
-			
+
 			try {
 				dims = Utilities.getBeamDimsINCH(material);
-			} catch ( NullPointerException ex) {
+			} catch (NullPointerException ex) {
 				dims = Utilities.getBeamDimsMM(material);
 			}
-			
+
 			double weight = GeneralSvc.calculateMaterialWeight(quoted);
-			
+
 			slf4jLogger.debug("*CHANNEL*: " + material.getDimensions());
-			
-			slf4jLogger.debug("*CHANNEL*: " + quoted.getType() + "\t" 
-					+ String.format("%.2f", dims.get(0)) + "\t"
-					+ String.format("%.2f", dims.get(1)) + "\t" 
-					+ String.format("%.2f", dims.get(2)) + "\t" 
+
+			slf4jLogger.debug("*CHANNEL*: " + quoted.getType() + "\t" + String.format("%.2f", dims.get(0)) + "\t"
+					+ String.format("%.2f", dims.get(1)) + "\t" + String.format("%.2f", dims.get(2)) + "\t"
 					+ String.format("%.2f", weight));
 
 		}
 
 	}
-	
+
 	@Test
 	public void angleVolumeTest() {
 
@@ -434,29 +434,27 @@ public class ServicesTest {
 			quoted.setCategory(material.getCategory());
 			quoted.setType(material.getType());
 			quoted.setQuantity(100.0);
-			
+
 			ArrayList<Double> dims = null;
-			
+
 			try {
 				dims = Utilities.getBeamDimsINCH(material);
-			} catch ( NullPointerException ex) {
+			} catch (NullPointerException ex) {
 				dims = Utilities.getBeamDimsMM(material);
 			}
-			
+
 			double weight = GeneralSvc.calculateMaterialWeight(quoted);
-			
+
 			slf4jLogger.debug("*ANGLE*: " + material.getDimensions());
-			
-			slf4jLogger.debug("*ANGLE*: " + quoted.getType() + "\t" 
-					+ String.format("%.2f", dims.get(0)) + "\t"
-					+ String.format("%.2f", dims.get(1)) + "\t" 
-					+ String.format("%.2f", dims.get(2)) + "\t" 
+
+			slf4jLogger.debug("*ANGLE*: " + quoted.getType() + "\t" + String.format("%.2f", dims.get(0)) + "\t"
+					+ String.format("%.2f", dims.get(1)) + "\t" + String.format("%.2f", dims.get(2)) + "\t"
 					+ String.format("%.2f", weight));
 
 		}
 
 	}
-	
+
 	@Test
 	public void platesVolumeCalculationTest() {
 
@@ -467,20 +465,115 @@ public class ServicesTest {
 		quoted.setType("SS");
 		quoted.setQuantity(11.88);
 		quoted.setUnit("M2");
-		
+
 		ArrayList<Double> dims = Utilities.getPlateDimsMM(quoted);
 
 		double weight = GeneralSvc.calculateMaterialWeight(quoted);
-			
+
 		slf4jLogger.info("*PLATE*: " + quoted.getDimensions());
+
+		slf4jLogger.info("*PLATE*: " + quoted.getType() + "\t" + String.valueOf(dims.get(0)) + "\t"
+				+ String.valueOf(dims.get(1)) + "\t" + String.valueOf(dims.get(2)) + "\t" + String.valueOf(weight));
+
+	}
+
+	@Test
+	public void elbowParsingTest() {
+
+		datastore = NoSqlController.getInstance().getDatabase();
+
+		Query<Materials> query = datastore.createQuery(Materials.class);
+		List<Materials> result = query.field("category").equal("ELBOW").asList();
+
+		Iterator<Materials> itr = result.iterator();
+
+		while (itr.hasNext()) {
+
+			Materials material = itr.next();
+
+			for (String elbow : Constants.FITTING_ELBOWS) {
+
+				boolean xcheck = Utilities.checkFittingCategory(elbow, material.getDescription(), 3);
+				if (xcheck) {
+					slf4jLogger.debug("*ELBOW*: " + material.getDescription());
+					slf4jLogger.debug("*ELBOW*: " + elbow);
+				}
+
+			}
+
+		}
+
+	}
+
+	@Test
+	public void elbowWeightTest() {
+
+		QuotedMaterials quoted = new QuotedMaterials();
+		quoted.setDescription("ELBOW, 90º, CS,6\", SCH40,BW,LR,SMLS, ASTM A234 GR WPB");
+		quoted.setDimensions("6\", SCH40");
+
+		String clean_dsc = quoted.getDescription().replaceAll("[^a-zA-Z0-9\",]", "");
+
+		slf4jLogger.info("*ELBOW*: " + clean_dsc);
 		
-		slf4jLogger.info("*PLATE*: " + quoted.getType() + "\t" 
-				+ String.valueOf(dims.get(0)) + "\t"
-				+ String.valueOf(dims.get(1)) + "\t" 
-				+ String.valueOf(dims.get(2)) + "\t" 
-				+ String.valueOf(weight));
+		for (String category : Constants.FITTING_ELBOWS) {
+
+			boolean xcheck = Utilities.checkFittingCategory(category, quoted.getDescription(), 3);
+
+			if (xcheck) {
 			
+				String schedule = Utilities.getPipeSchedule(quoted);
+				String pipeSize = Utilities.getDimensionINCH(quoted).get(0);
+
+				Fittings fitting = FittingsController.read(category, schedule, pipeSize);
+
+				double weight = fitting.getWeight();
+
+				slf4jLogger.debug("*ELBOW*: " + quoted.getDescription());
+				slf4jLogger.debug("*ELBOW*: " + schedule);
+				slf4jLogger.debug("*ELBOW*: " + Utilities.getDimensionINCH(quoted));
+				slf4jLogger.debug("*ELBOW*: " + String.valueOf(weight));
+				
+			}
+		}
 	}
 	
-	
+	@Test
+	public void allElbowsWeightTest() {
+		
+		datastore = NoSqlController.getInstance().getDatabase();
+
+		Query<Materials> query = datastore.createQuery(Materials.class);
+		List<Materials> result = query.field("category").equal("ELBOW").asList();
+
+		Iterator<Materials> itr = result.iterator();
+
+		while (itr.hasNext()) {
+
+			Materials material = itr.next();
+			QuotedMaterials quoted = new QuotedMaterials();
+			
+			quoted.setDescription(material.getDescription());
+			quoted.setDimensions(material.getDimensions());
+			quoted.setItemcode(material.getItemcode());
+			quoted.setCategory(material.getCategory());
+			quoted.setQuantity(10.0);
+			
+			double weight = Utilities.getFittingWeight(quoted, Constants.FITTING_ELBOWS, 3);
+			double weight_total = GeneralSvc.calculateMaterialWeight(quoted);
+			
+			if( weight > 0.0 ) {
+				
+				slf4jLogger.debug("*ELBOW*: " + quoted.getDescription());
+				slf4jLogger.debug("*ELBOW*: " + quoted.getItemcode());
+				slf4jLogger.debug("*ELBOW*: " + Utilities.getPipeSchedule(quoted));
+				slf4jLogger.debug("*ELBOW*: " + Utilities.getDimensionINCH(quoted));
+				slf4jLogger.debug("*ELBOW*: " + String.valueOf(weight));
+				slf4jLogger.debug("*ELBOW*: " + String.valueOf(weight_total));			
+			}
+				
+		}
+		
+	}
+
 }
