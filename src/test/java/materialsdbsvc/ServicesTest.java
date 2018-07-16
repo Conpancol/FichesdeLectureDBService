@@ -358,7 +358,7 @@ public class ServicesTest {
 			quoted.setType(material.getType());
 			quoted.setQuantity(100.0);
 			quoted.setUnit("M2");
-			;
+			
 
 			ArrayList<Double> dims = Utilities.getPlateDimsMM(material);
 
@@ -575,5 +575,32 @@ public class ServicesTest {
 		}
 		
 	}
+	
+	@Test
+	public void hastelloyTubeTest() { 
+		
+		Supplier<FormulaFactory> formulaFactory = FormulaFactory::new;
+		
+		Formula formula = formulaFactory.get().getFormula("CYLINDERVOL");
+		
+		double wt = 0.035;
+		double od = 0.5;
+		double id = 0.5 - (2.0*wt);
+		
+		formula.addVariable("OD", od*Constants.UNIT_INCH_to_MM*Constants.UNIT_MM_to_M);
+		formula.addVariable("ID", id*Constants.UNIT_INCH_to_MM*Constants.UNIT_MM_to_M);
+		formula.addVariable("H" , 16.459);
+
+		double volume = formula.eval();
+		double density = Utilities.getDensity("HASTELLOY") * Constants.UNIT_KG_o_M3;
+		double weight = volume*density;
+		
+		slf4jLogger.info("Tubing Hastelloy volume: " + String.valueOf(volume));
+		slf4jLogger.info("Tubing Hastelloy weight: " + String.valueOf(weight));
+		assertEquals(4.85377, weight,0.001);
+		
+		
+	}
+	
 
 }
