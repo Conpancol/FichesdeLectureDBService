@@ -598,6 +598,21 @@ public class ServicesTest {
 		slf4jLogger.info("Tubing Hastelloy volume: " + String.valueOf(volume));
 		slf4jLogger.info("Tubing Hastelloy weight: " + String.valueOf(weight));
 		assertEquals(4.85377, weight,0.001);
+	
+		Materials material = new Materials();
+		material.setDimensions("16\",SCH40");
+		
+		formula.addVariable("OD", Utilities.getODMM(material)*Constants.UNIT_MM_to_M);
+		formula.addVariable("ID", Utilities.getIDMM(material)*Constants.UNIT_MM_to_M);
+		formula.addVariable("H" , 24.00);
+
+		volume = formula.eval();
+		density = Utilities.getDensity("TITANIUM") * Constants.UNIT_KG_o_M3;
+		weight = volume*density;
+		
+		slf4jLogger.info("Tubing Titanium volume: " + String.valueOf(volume));
+		slf4jLogger.info("Tubing Titanium weight: " + String.valueOf(weight));
+		assertEquals(1696.45, weight,0.01);
 		
 		
 	}
