@@ -8,7 +8,7 @@ package co.phystech.aosorio.services;
 
 import com.google.gson.JsonObject;
 
-
+import co.phystech.aosorio.controllers.MaterialsController;
 import spark.Request;
 import spark.Response;
 
@@ -21,23 +21,12 @@ public class StatisticsSvc {
 	//private final static Logger slf4jLogger = LoggerFactory.getLogger(StatisticsSvc.class);
 
 	public static Object getBasicStats(Request pRequest, Response pResponse) {
-
-		//slf4jLogger.info("getBasicStats");
+		
+		long nmaterials = MaterialsController.count();
 		
 		JsonObject json = new JsonObject();
 
-		json.addProperty("books", 1);
-		json.addProperty("comments", 1);
-
-		return json;
-
-	}
-
-	public static Object getAdvancedStats(Request pRequest, Response pResponse) {
-
-		JsonObject json = new JsonObject();
-
-		//json = (JsonObject) countGroups(conn);
+		json.addProperty("materials", nmaterials);
 
 		return json;
 

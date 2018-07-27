@@ -5,8 +5,11 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.bson.types.ObjectId;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mongodb.morphia.Key;
 import org.slf4j.Logger;
@@ -17,11 +20,13 @@ import co.phystech.aosorio.controllers.CfgController;
 import co.phystech.aosorio.controllers.MaterialsController;
 import co.phystech.aosorio.controllers.QuotesController;
 import co.phystech.aosorio.controllers.RequestForQuotesController;
+import co.phystech.aosorio.exceptions.AlreadyExistsException;
 import co.phystech.aosorio.models.ExtMaterials;
 import co.phystech.aosorio.models.Materials;
 import co.phystech.aosorio.models.QuotedMaterials;
 import co.phystech.aosorio.models.Quotes;
 import co.phystech.aosorio.models.RequestForQuotes;
+
 
 public class ModelsTest {
 
@@ -29,15 +34,17 @@ public class ModelsTest {
 
 	CfgController dbConf = new CfgController(Constants.CONFIG_FILE);
 
-	public static final String itemcode = "1234567890";
+	public static final String itemcode = "TEST0001";
 	public static final String description = "TUBE, CS, 1\"";
 	public static final String type = "CS";
 	public static final String category = "TUBE";
 	public static final String dimensions = "1\"";
 
-	@Test
-	public void materialCreationTest() {
-
+	private static ObjectId materialId;
+	
+	@BeforeClass
+	public static void beforeClass() {
+		
 		Materials material = new Materials();
 
 		material.setItemcode(itemcode);
@@ -46,15 +53,27 @@ public class ModelsTest {
 		material.setCategory(category);
 		material.setDimensions(dimensions);
 
-		MaterialsController ctx = new MaterialsController();
 		Key<Materials> keys = MaterialsController.create(material);
-		ObjectId id = (ObjectId) keys.getId();
-
-		String storedItem = MaterialsController.read(id).getItemcode();
 		
-		assertEquals(itemcode, storedItem);
+		materialId = (ObjectId) keys.getId();
+		
+	}
 
-		ctx.delete(material);
+	@AfterClass
+	public static void afterClass() {
+		
+		Materials material = MaterialsController.read(materialId);
+		
+		MaterialsController.delete(material);
+
+	}
+		
+	@Test
+	public void materialCreationTest() {
+
+		String storedItem = MaterialsController.read(materialId).getItemcode();
+
+		assertEquals(itemcode, storedItem);
 
 		slf4jLogger.info("materialCreationTest> success");
 
@@ -77,7 +96,7 @@ public class ModelsTest {
 		ExtMaterials material = new ExtMaterials();
 
 		material.setItemcode(itemcode);
-		
+
 		material.setDescription(description);
 		material.setType(type);
 		material.setCategory(category);
@@ -85,23 +104,29 @@ public class ModelsTest {
 		material.setOrderNumber("9000");
 		material.setQuantity(1.0);
 		material.setUnit("EA");
-		
+
 		List<ExtMaterials> ext = new ArrayList<ExtMaterials>();
 		ext.add(material);
 		rfq.setMaterialList(ext);
-		
-		RequestForQuotesController ctx = new RequestForQuotesController();
-		Key<RequestForQuotes> keys = RequestForQuotesController.create(rfq);
-		ObjectId id = (ObjectId) keys.getId();
-		
-		assertEquals(1234, ctx.read(id).getInternalCode());
-		
-		ctx.delete(rfq);
 
-		slf4jLogger.info("rfqCreationTest> success");
-		
+		try {
+
+			Key<RequestForQuotes> keys;
+			keys = RequestForQuotesController.create(rfq);
+			ObjectId id = (ObjectId) keys.getId();
+			assertEquals(1234, RequestForQuotesController.read(id).getInternalCode());
+			RequestForQuotesController.delete(rfq);
+			slf4jLogger.info("rfqCreationTest> success");
+
+		} catch (NoSuchElementException | AlreadyExistsException exception) {
+
+			slf4jLogger.info("rfqCreationTest> Item not in DB OR RFQ already exists");
+			slf4jLogger.info(exception.getLocalizedMessage());
+
+		}
+
 	}
-	
+
 	@Test
 	public void quoteCreationTest() {
 
@@ -118,11 +143,11 @@ public class ModelsTest {
 		quote.setProviderCode("A012345");
 		quote.setProviderName("Van Leuwen");
 		quote.setContactName("Jorge Varela");
-		
+
 		QuotedMaterials material = new QuotedMaterials();
 
 		material.setItemcode(itemcode);
-		
+
 		material.setDescription(description);
 		material.setType(type);
 		material.setCategory(category);
@@ -138,18 +163,25 @@ public class ModelsTest {
 		List<QuotedMaterials> ext = new ArrayList<QuotedMaterials>();
 		ext.add(material);
 		quote.setMaterialList(ext);
-		
-		QuotesController ctx = new QuotesController();
-		Key<Quotes> keys = QuotesController.create(quote);
-		ObjectId id = (ObjectId) keys.getId();
-		
-		assertEquals(1234, ctx.read(id).getInternalCode());
-		
-		ctx.delete(quote);
 
-		slf4jLogger.info("quoteCreationTest> success");
-		
+		Key<Quotes> keys;
+
+		try {
+			keys = QuotesController.create(quote);
+			ObjectId id = (ObjectId) keys.getId();
+			assertEquals(1234, QuotesController.read(id).getInternalCode());
+			QuotesController.delete(quote);
+			slf4jLogger.info("quoteCreationTest> success");
+
+		} catch (NoSuchElementException | AlreadyExistsException exception) {
+
+			slf4jLogger.info("quoteCreationTest> Item not in DB OR QUOTE already exists");
+			slf4jLogger.info(exception.getLocalizedMessage());
+
+		}
+
+		slf4jLogger.info("quoteCreationTest> DONE");
+
 	}
-	
 
 }

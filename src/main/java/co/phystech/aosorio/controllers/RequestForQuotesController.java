@@ -4,7 +4,6 @@
 package co.phystech.aosorio.controllers;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -19,9 +18,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.mongodb.WriteResult;
 
 import co.phystech.aosorio.config.Constants;
+import co.phystech.aosorio.exceptions.AlreadyExistsException;
 import co.phystech.aosorio.models.BackendMessage;
 import co.phystech.aosorio.models.ExtMaterials;
 import co.phystech.aosorio.models.Materials;
@@ -39,16 +41,7 @@ public class RequestForQuotesController {
 
 	private final static Logger slf4jLogger = LoggerFactory.getLogger(RequestForQuotesController.class);
 
-	private static ArrayList<ExtMaterials> missingMaterials = new ArrayList<ExtMaterials>();
-
-	public RequestForQuotesController() {
-		NoSqlController dbcontroller = NoSqlController.getInstance();
-		datastore = dbcontroller.getDatabase();
-	}
-
 	public static Object create(Request pRequest, Response pResponse) {
-
-		datastore = NoSqlController.getInstance().getDatabase();
 
 		BackendMessage returnMessage = new BackendMessage();
 
@@ -56,33 +49,64 @@ public class RequestForQuotesController {
 
 		try {
 
-			slf4jLogger.info(pRequest.body());
+			slf4jLogger.debug(pRequest.body());
 
 			ObjectMapper mapper = new ObjectMapper();
 
 			RequestForQuotes newRFQ = mapper.readValue(pRequest.body(), RequestForQuotes.class);
 
-			Key<RequestForQuotes> keys = create(newRFQ);
+			create(newRFQ);
 			pResponse.status(200);
+			return returnMessage.getOkMessage("RFQ Added");
 
-			if (keys != null) {
-				ObjectId id = (ObjectId) keys.getId();
-				slf4jLogger.info(id.toString());
+		} catch (IOException exception) {
 
-				if (missingMaterials.isEmpty()) {
-					return returnMessage.getOkMessage(String.valueOf(id));
-				} else {
-					return returnMessage.getNotOkMessage(getMissingMaterials());
-				}
-			} else {
-				return returnMessage.getNotOkMessage("RFQ already exists");
-			}
-
-		} catch (IOException jpe) {
-			jpe.printStackTrace();
-			slf4jLogger.debug("Problem adding fiche");
+			slf4jLogger.debug(exception.getLocalizedMessage());
 			pResponse.status(Constants.HTTP_BAD_REQUEST);
 			return returnMessage.getNotOkMessage("Problem adding RFQ");
+
+		} catch (AlreadyExistsException exception) {
+
+			slf4jLogger.debug(exception.getLocalizedMessage());
+			pResponse.status(Constants.HTTP_BAD_REQUEST);
+			return returnMessage.getNotOkMessage("RFQ already exists");
+
+		} catch (NoSuchElementException exception) {
+
+			slf4jLogger.debug(exception.getLocalizedMessage());
+			pResponse.status(Constants.HTTP_BAD_REQUEST);
+			return returnMessage.getNotOkMessage("Item in RFQ not in DB");
+
+		}
+
+	}
+
+	public static Key<RequestForQuotes> create(RequestForQuotes rfq)
+			throws AlreadyExistsException, NoSuchElementException {
+
+		datastore = NoSqlController.getInstance().getDatabase();
+
+		Query<RequestForQuotes> query = datastore.createQuery(RequestForQuotes.class);
+		List<RequestForQuotes> result = query.field("internalCode").equal(rfq.getInternalCode()).asList();
+
+		if (result.isEmpty()) {
+			slf4jLogger.info("RFQ not found " + rfq.getInternalCode());
+			slf4jLogger.info("Size of material list " + String.valueOf(rfq.getMaterialList().size()));
+
+			try {
+				// 1. this goes always first
+				xcheck(rfq.getMaterialList());
+				return datastore.save(rfq);
+
+			} catch (NoSuchElementException exception) {
+
+				slf4jLogger.info("Item not found in DB");
+				throw exception;
+			}
+
+		} else {
+
+			throw new AlreadyExistsException();
 		}
 
 	}
@@ -105,7 +129,7 @@ public class RequestForQuotesController {
 			pResponse.type("application/json");
 			return rfq;
 
-		} catch (NoSuchElementException ex) {
+		} catch (NoSuchElementException exception) {
 
 			BackendMessage returnMessage = new BackendMessage();
 			slf4jLogger.debug("RFQ not found");
@@ -116,30 +140,63 @@ public class RequestForQuotesController {
 
 	}
 
-	public static Key<RequestForQuotes> create(RequestForQuotes rfq) {
+	public static RequestForQuotes read(ObjectId id) {
 
-		Query<RequestForQuotes> query = datastore.createQuery(RequestForQuotes.class);
-		List<RequestForQuotes> result = query.field("internalCode").equal(rfq.getInternalCode()).asList();
-
-		if (result.isEmpty()) {
-			slf4jLogger.info("RFQ not found " + rfq.getInternalCode());
-			slf4jLogger.info("Size of material list " + String.valueOf(rfq.getMaterialList().size()));
-			// ...check for missing material information and remove materials
-			// not in DB
-			updateMaterialList(rfq);
-
-			return datastore.save(rfq);
-		}
-
-		return null;
+		datastore = NoSqlController.getInstance().getDatabase();
+		return datastore.get(RequestForQuotes.class, id);
 	}
 
-	private static void updateMaterialList(RequestForQuotes rfq) {
+	public static UpdateResults update(RequestForQuotes rfq, UpdateOperations<RequestForQuotes> operations) {
 
-		slf4jLogger.debug("Entering updater");
-		
-		missingMaterials.clear();
-		
+		datastore = NoSqlController.getInstance().getDatabase();
+		return datastore.update(rfq, operations);
+	}
+
+	public static WriteResult delete(RequestForQuotes rfq) {
+
+		datastore = NoSqlController.getInstance().getDatabase();
+		return datastore.delete(rfq);
+	}
+
+	public static UpdateOperations<RequestForQuotes> createOperations() {
+
+		datastore = NoSqlController.getInstance().getDatabase();
+		return datastore.createUpdateOperations(RequestForQuotes.class);
+	}
+
+	public static Object xchecker(Request pRequest, Response pResponse) {
+
+		BackendMessage returnMessage = new BackendMessage();
+
+		pResponse.type("application/json");
+
+		try {
+
+			slf4jLogger.info(pRequest.body());
+
+			ObjectMapper mapper = new ObjectMapper();
+
+			RequestForQuotes newRFQ = mapper.readValue(pRequest.body(), RequestForQuotes.class);
+
+			JsonArray keys = xchecker(newRFQ);
+			pResponse.status(200);
+			return returnMessage.getOkMessage(keys.toString());
+
+		} catch (IOException exception) {
+
+			slf4jLogger.debug(exception.getLocalizedMessage());
+			pResponse.status(Constants.HTTP_BAD_REQUEST);
+			return returnMessage.getNotOkMessage("Problem with RFQ XChecker");
+		}
+
+	}
+
+	private static JsonArray xchecker(RequestForQuotes rfq) {
+
+		datastore = NoSqlController.getInstance().getDatabase();
+
+		JsonArray jArray = new JsonArray();
+
 		List<ExtMaterials> materialList = rfq.getMaterialList();
 		Iterator<ExtMaterials> itr = materialList.iterator();
 
@@ -152,70 +209,45 @@ public class RequestForQuotesController {
 
 			List<Materials> result = MaterialsController.read(itemCode);
 
+			JsonObject item_result = new JsonObject();
+
 			if (result.isEmpty()) {
 				// Material not found
-				missingMaterials.add(material);
+				item_result.addProperty("itemcode", material.getItemcode());
+				item_result.addProperty("status", "Material not in DB");
 			} else {
 				// Material found - there should be only one
-				material.setCategory(result.get(0).getCategory());
-				material.setDescription(result.get(0).getDescription());
-				material.setDimensions(result.get(0).getDimensions());
-				material.setType(result.get(0).getType());
-				slf4jLogger.debug("Incoming list materials updated");
+				item_result.addProperty("itemcode", material.getItemcode());
+				item_result.addProperty("status", "Material found");
+			}
+
+			jArray.add(item_result);
+		}
+
+		return jArray;
+
+	}
+
+	public static void xcheck(List<ExtMaterials> materialList) throws NoSuchElementException {
+
+		datastore = NoSqlController.getInstance().getDatabase();
+
+		Query<Materials> query = datastore.createQuery(Materials.class);
+
+		Iterator<ExtMaterials> itr = materialList.iterator();
+
+		while (itr.hasNext()) {
+
+			Materials material = itr.next();
+
+			List<Materials> result = query.field("itemcode").equal(material.getItemcode()).asList();
+
+			if (result.isEmpty()) {
+				throw new NoSuchElementException();
 			}
 
 		}
 
-		itr = missingMaterials.iterator();
-
-		while (itr.hasNext()) {
-
-			ExtMaterials material = itr.next();
-			boolean status = materialList.remove(material);
-			slf4jLogger.debug("Removed material from incoming list " + status);
-
-		}
-
-	}
-
-	public RequestForQuotes read(ObjectId id) {
-		return datastore.get(RequestForQuotes.class, id);
-	}
-
-	public UpdateResults update(RequestForQuotes rfq, UpdateOperations<RequestForQuotes> operations) {
-		return datastore.update(rfq, operations);
-	}
-
-	public WriteResult delete(RequestForQuotes rfq) {
-		return datastore.delete(rfq);
-	}
-
-	public UpdateOperations<RequestForQuotes> createOperations() {
-		return datastore.createUpdateOperations(RequestForQuotes.class);
-	}
-
-	/**
-	 * @return the missingMaterials
-	 */
-	public static String getMissingMaterials() {
-
-		Iterator<ExtMaterials> itr = missingMaterials.iterator();
-		ArrayList<String> missingString = new ArrayList<String>();
-		
-		while (itr.hasNext()) {
-			ExtMaterials material = (ExtMaterials) itr.next();
-			missingString.add(material.getItemcode());
-		}
-		return missingString.toString();
-
-	}
-
-	/**
-	 * @param missingMaterials
-	 *            the missingMaterials to set
-	 */
-	public void setMissingMaterials(ArrayList<ExtMaterials> missingMaterials) {
-		RequestForQuotesController.missingMaterials = missingMaterials;
 	}
 
 }

@@ -58,7 +58,7 @@ public class ServicesTest {
 	private static Datastore datastore;
 
 	@Test
-	public void bookCounterTest() {
+	public void materialsCounterTest() {
 
 		// Test the book counter service
 		Request pRequest = null;
@@ -66,25 +66,9 @@ public class ServicesTest {
 
 		JsonObject json = (JsonObject) StatisticsSvc.getBasicStats(pRequest, pResponse);
 
-		slf4jLogger.debug("Number of books: " + json.get("books"));
-		slf4jLogger.debug("Number of comments: " + json.get("comments"));
+		slf4jLogger.info("Number of materials: " + json.get("materials"));
 
-		assertTrue(json.has("books"));
-
-	}
-
-	@Test
-	public void countGroupTest() {
-
-		// Test the book counter service
-		Request pRequest = null;
-		Response pResponse = null;
-
-		JsonObject json = (JsonObject) StatisticsSvc.getAdvancedStats(pRequest, pResponse);
-
-		slf4jLogger.debug("Groups " + json.get("groups"));
-
-		assertTrue(true);
+		assertTrue(json.has("materials"));
 
 	}
 
@@ -613,6 +597,18 @@ public class ServicesTest {
 		slf4jLogger.info("Tubing Titanium volume: " + String.valueOf(volume));
 		slf4jLogger.info("Tubing Titanium weight: " + String.valueOf(weight));
 		assertEquals(1696.45, weight,0.01);
+		
+		
+		formula.addVariable("OD", 80.0*Constants.UNIT_MM_to_M);
+		formula.addVariable("H" , 2.00);
+
+		volume = formula.eval();
+		density = Utilities.getDensity("TITANIUM") * Constants.UNIT_KG_o_M3;
+		weight = volume*density;
+		
+		slf4jLogger.info("BAR Titanium volume: " + String.valueOf(volume));
+		slf4jLogger.info("BAR Titanium weight: " + String.valueOf(weight));
+		assertEquals(45.30, weight,0.1);
 		
 		
 	}
