@@ -5,6 +5,7 @@ package co.phystech.aosorio.controllers;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -39,11 +40,6 @@ public class MaterialsController {
 	private final static Logger slf4jLogger = LoggerFactory.getLogger(MaterialsController.class);
 
 	private static Datastore datastore;
-
-	public MaterialsController() {
-		NoSqlController dbcontroller = NoSqlController.getInstance();
-		datastore = dbcontroller.getDatabase();
-	}
 
 	public static Object create(Request pRequest, Response pResponse) {
 
@@ -124,8 +120,6 @@ public class MaterialsController {
 
 	public static Object read(Request pRequest, Response pResponse) {
 
-		datastore = NoSqlController.getInstance().getDatabase();
-
 		String id = pRequest.params("id");
 
 		slf4jLogger.debug("Parameters: " + id);
@@ -149,7 +143,7 @@ public class MaterialsController {
 		}
 
 	}
-
+	
 	public static Materials read(ObjectId id) {
 
 		datastore = NoSqlController.getInstance().getDatabase();
@@ -192,4 +186,96 @@ public class MaterialsController {
 		return datastore.find(Materials.class).count();
 	}
 
+	//...
+	
+	public static Object xcheck(Request pRequest, Response pResponse) {
+
+		BackendMessage returnMessage = new BackendMessage();
+
+		pResponse.type("application/json");
+
+		try {
+
+			slf4jLogger.info(pRequest.body());
+
+			ObjectMapper mapper = new ObjectMapper();
+
+			Materials[] materialsList = mapper.readValue(pRequest.body(), Materials[].class);
+
+			JsonArray keys = xchecker(Arrays.asList(materialsList));
+			pResponse.status(200);
+			return returnMessage.getOkMessage(keys.toString());
+
+		} catch (IOException exception) {
+
+			slf4jLogger.debug(exception.getLocalizedMessage());
+			pResponse.status(Constants.HTTP_BAD_REQUEST);
+			return returnMessage.getNotOkMessage("Problem with MATERIALS XChecker");
+		}
+
+	}
+	
+	public static Object singlexcheck(Request pRequest, Response pResponse) {
+
+		BackendMessage returnMessage = new BackendMessage();
+
+		String[] id = pRequest.params("id").split(",");
+
+		slf4jLogger.debug("Parameters: " + id[0]);
+				
+		pResponse.type("application/json");
+
+		ArrayList<Materials> materialsList = new ArrayList<Materials>();
+		
+		for ( int idx = 0; idx < id.length; idx++) {
+			Materials material = new Materials();
+			material.setItemcode(id[idx]);
+			materialsList.add(material);
+		}
+			
+		JsonArray keys = xchecker(materialsList);
+		pResponse.status(200);
+		return returnMessage.getOkMessage(keys.toString());
+				
+	}
+
+	public static JsonArray xchecker(List<Materials> materialsList) {
+
+		datastore = NoSqlController.getInstance().getDatabase();
+
+		JsonArray jArray = new JsonArray();
+
+		Iterator<Materials> itr = materialsList.iterator();
+
+		while (itr.hasNext()) {
+
+			Materials material = itr.next();
+			String itemCode = material.getItemcode();
+
+			slf4jLogger.debug("Searching in DB for item " + itemCode);
+
+			List<Materials> result = MaterialsController.read(itemCode);
+
+			JsonObject item_result = new JsonObject();
+
+			if (result.isEmpty()) {
+				// Material not found
+				item_result.addProperty("itemcode", material.getItemcode());
+				item_result.addProperty("description", "-");
+				item_result.addProperty("status", "Material not in DB");
+			} else {
+				// Material found - there should be only one
+				item_result.addProperty("itemcode", result.get(0).getItemcode());
+				item_result.addProperty("description", result.get(0).getDescription());
+				item_result.addProperty("status", "Material found");
+			}
+
+			jArray.add(item_result);
+		}
+
+		return jArray;
+
+	}
+	
+	
 }

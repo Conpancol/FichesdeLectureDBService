@@ -3,8 +3,13 @@ package materialsdbsvc;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import org.bson.types.ObjectId;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mongodb.morphia.Key;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +26,41 @@ import co.phystech.aosorio.services.GeneralSvc;
 public class ResponseTest {
 
 	private final static Logger slf4jLogger = LoggerFactory.getLogger(ResponseTest.class);
+	
+	public static final String itemcode = "TEST0001";
+	public static final String description = "TUBE, CS, 1\"";
+	public static final String type = "CS";
+	public static final String category = "TUBE";
+	public static final String dimensions = "1\"";
+	
+	private static ObjectId materialId;
+	
+	@BeforeClass
+	public static void beforeClass() { 
+		
+		Materials material = new Materials();
+
+		material.setItemcode(itemcode);
+		material.setDescription(description);
+		material.setType(type);
+		material.setCategory(category);
+		material.setDimensions(dimensions);
+
+		Key<Materials> keys = MaterialsController.create(material);
+		
+		materialId = (ObjectId) keys.getId();
+		
+	}
+	
+	@AfterClass
+	public static void afterClass() {
+		
+		Materials material = MaterialsController.read(materialId);
+		
+		MaterialsController.delete(material);
+
+	}
+	
 	@Test
 	public void JsonTests() {
 		
@@ -42,11 +82,7 @@ public class ResponseTest {
 		
 		ArrayList<Materials> materials = new ArrayList<Materials>();
 		
-		Materials material = new Materials();
-		material.setItemcode("TEST0001");
-		material.setCategory("PLATE");
-		material.setDescription("Something");
-		material.setType("SX");
+		Materials material = MaterialsController.read(materialId);
 		
 		materials.add(material);
 		
@@ -62,10 +98,41 @@ public class ResponseTest {
 		JsonObject result_back = parser.parse(GeneralSvc.dataToJson(result)).getAsJsonObject();		
 		JsonArray result_value = parser.parse(result_back.get("value").getAsString()).getAsJsonArray();
 		
+		slf4jLogger.info("BackendMessageWithJsonTests: " + jArray.get(0).toString());
+		
 		assertEquals("TEST0001", result_value.get(0).getAsJsonObject().get("itemcode").getAsString());
 		
-		MaterialsController.delete(material);
 		
+	}
+	
+	@Test
+	public void XCheckerTests() {
+		
+		ArrayList<Materials> materials = new ArrayList<Materials>();
+		
+		Materials material = MaterialsController.read(materialId);
+		
+		materials.add(material);
+		
+		JsonArray result_value = MaterialsController.xchecker(materials);
+		
+		slf4jLogger.info("XCheckerTests: " + result_value.get(0).getAsJsonObject().get("description").getAsString());
+		
+		assertEquals("TEST0001", result_value.get(0).getAsJsonObject().get("itemcode").getAsString());
+		
+	}
+	
+	@Test
+	public void ReaderTests() { 
+		
+		List<Materials> materials = MaterialsController.read(itemcode);
+		
+		if( !materials.isEmpty() ) 
+			slf4jLogger.info("ReaderTests: " + materials.get(0).getItemcode());
+			
+		assertEquals("TEST0001",materials.get(0).getItemcode());
+
+
 	}
 	
 }
