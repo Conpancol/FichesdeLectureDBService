@@ -18,8 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.google.gson.Gson;
 import com.mongodb.WriteResult;
 
 import co.phystech.aosorio.config.Constants;
@@ -115,6 +114,8 @@ public class RequestForQuotesController {
 
 		datastore = NoSqlController.getInstance().getDatabase();
 
+		BackendMessage returnMessage = new BackendMessage();
+		
 		int id = Integer.valueOf(pRequest.params("id"));
 
 		slf4jLogger.debug("Parameters: " + id);
@@ -122,16 +123,19 @@ public class RequestForQuotesController {
 		Query<RequestForQuotes> query = datastore.createQuery(RequestForQuotes.class);
 		List<RequestForQuotes> result = query.field("internalCode").equal(id).asList();
 
+		pResponse.type("application/json");
+		
 		try {
 
 			RequestForQuotes rfq = result.iterator().next();
 			pResponse.status(200);
-			pResponse.type("application/json");
-			return rfq;
+			
+			Gson gson = new Gson();
+			String rfq_json = gson.toJson(rfq);			
+			return returnMessage.getOkMessage(rfq_json);
 
 		} catch (NoSuchElementException exception) {
-
-			BackendMessage returnMessage = new BackendMessage();
+			
 			slf4jLogger.debug("RFQ not found");
 			pResponse.status(Constants.HTTP_BAD_REQUEST);
 			return returnMessage.getNotOkMessage("RFQ not found");
