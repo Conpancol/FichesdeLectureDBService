@@ -4,7 +4,6 @@
 package co.phystech.aosorio.controllers;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -206,9 +205,9 @@ public class RequestForQuotesController {
 			slf4jLogger.debug(pRequest.body());
 
 			ObjectMapper mapper = new ObjectMapper();
-			ArrayList<ExtMaterials> materialList = (ArrayList<ExtMaterials>) Arrays.asList(mapper.readValue(pRequest.body(), ExtMaterials[].class));
+			ExtMaterials[] materialList = mapper.readValue(pRequest.body(), ExtMaterials[].class);
 
-			JsonArray result = quoteFinder(materialList);
+			JsonArray result = quoteFinder(Arrays.asList(materialList));
 			pResponse.status(200);
 			return returnMessage.getOkMessage(result.toString());
 			
@@ -220,7 +219,7 @@ public class RequestForQuotesController {
 
 	}
 
-	private static JsonArray quoteFinder(ArrayList<ExtMaterials> materialList) {
+	private static JsonArray quoteFinder(List<ExtMaterials> materialList) {
 		
 		JsonArray jArray = new JsonArray();
 

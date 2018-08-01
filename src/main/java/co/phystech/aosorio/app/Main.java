@@ -55,7 +55,7 @@ public class Main {
 		
 		get(Routes.RFQS + "/:id", RequestForQuotesController::read, GeneralSvc.json());
 		
-		post(Routes.RFQS + "/quote", RequestForQuotesController::quoteFinder, GeneralSvc.json());
+		post(Routes.RFQS + "/quotes", RequestForQuotesController::quoteFinder, GeneralSvc.json());
 		
 		// ... Quotes
 		

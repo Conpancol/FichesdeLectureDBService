@@ -174,7 +174,7 @@ public class ServicesTest {
 	@Test
 	public void theoreticalWeightsTest() {
 
-		List<ExtQuotedMaterials> pipes = ExtQuotedMaterialsController.read("PIPE");
+		List<ExtQuotedMaterials> pipes = ExtQuotedMaterialsController.readBy("category","PIPE");
 		Iterator<ExtQuotedMaterials> itrPipes = pipes.iterator();
 
 		while (itrPipes.hasNext()) {
