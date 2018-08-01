@@ -4,6 +4,8 @@
 package co.phystech.aosorio.controllers;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -19,12 +21,15 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.mongodb.WriteResult;
 
 import co.phystech.aosorio.config.Constants;
 import co.phystech.aosorio.exceptions.AlreadyExistsException;
 import co.phystech.aosorio.models.BackendMessage;
 import co.phystech.aosorio.models.ExtMaterials;
+import co.phystech.aosorio.models.ExtQuotedMaterials;
 import co.phystech.aosorio.models.Materials;
 import co.phystech.aosorio.models.RequestForQuotes;
 import spark.Request;
@@ -188,6 +193,81 @@ public class RequestForQuotesController {
 
 		}
 
+	}
+	
+	public static Object quoteFinder(Request pRequest, Response pResponse) {
+
+		BackendMessage returnMessage = new BackendMessage();
+
+		pResponse.type("application/json");
+
+		try {
+
+			slf4jLogger.debug(pRequest.body());
+
+			ObjectMapper mapper = new ObjectMapper();
+			ArrayList<ExtMaterials> materialList = (ArrayList<ExtMaterials>) Arrays.asList(mapper.readValue(pRequest.body(), ExtMaterials[].class));
+
+			JsonArray result = quoteFinder(materialList);
+			pResponse.status(200);
+			return returnMessage.getOkMessage(result.toString());
+			
+		} catch (Exception exception) { 
+			slf4jLogger.info(exception.getLocalizedMessage());
+			return returnMessage.getNotOkMessage("NOT OK");
+			
+		}
+
+	}
+
+	private static JsonArray quoteFinder(ArrayList<ExtMaterials> materialList) {
+		
+		JsonArray jArray = new JsonArray();
+
+		Iterator<ExtMaterials> itr = materialList.iterator();
+
+		while (itr.hasNext()) {
+
+			Materials material = itr.next();
+			String itemCode = material.getItemcode();
+
+			slf4jLogger.debug("Searching in DB for item " + itemCode);
+
+			List<ExtQuotedMaterials> queryResult = ExtQuotedMaterialsController.readBy("itemcode", itemCode);
+			
+			if (queryResult.isEmpty()) {
+				// Material not found
+				JsonObject item_result = new JsonObject();
+				item_result.addProperty("itemcode", material.getItemcode());
+				item_result.addProperty("project", "No project associated");
+				item_result.addProperty("price", 0.0);
+				item_result.addProperty("unit", "-");
+				jArray.add(item_result);
+				
+			} else {
+				
+				Iterator<ExtQuotedMaterials> itrQuoted =  queryResult.iterator();
+				
+				while( itrQuoted.hasNext() ) {
+	
+					ExtQuotedMaterials quotedMaterial = itrQuoted.next();
+					
+					JsonObject item_result = new JsonObject();					
+					// Material found - there should be only one
+					item_result.addProperty("itemcode", quotedMaterial.getItemcode());
+					item_result.addProperty("project", quotedMaterial.getProjectId());
+					item_result.addProperty("price", quotedMaterial.getUnitPrice());
+					item_result.addProperty("unit", quotedMaterial.getUnit());
+					jArray.add(item_result);
+				
+				}
+								
+			}
+
+		}
+			
+		return jArray;
+	
 	}
 
 }

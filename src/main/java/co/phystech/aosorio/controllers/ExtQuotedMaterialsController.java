@@ -93,12 +93,12 @@ public class ExtQuotedMaterialsController {
 		return datastore.createUpdateOperations(ExtQuotedMaterials.class);
 	}
 	
-	public static List<ExtQuotedMaterials> read(String category) {
+	public static List<ExtQuotedMaterials> readBy(String field, String category) {
 
 		datastore = NoSqlController.getInstance().getDatabase();
 		
 		Query<ExtQuotedMaterials> query = datastore.createQuery(ExtQuotedMaterials.class);		
-		List<ExtQuotedMaterials> result = query.field("category").equal(category).asList();
+		List<ExtQuotedMaterials> result = query.field(field).equal(category).asList();
 
 		return result;
 
