@@ -48,6 +48,8 @@ public class ExQuotedMaterialsTest {
 		
 		material.setProviderId("CN101");
 		material.setProviderName("Chinese provider name");
+		material.setProjectId(101);
+		material.setRevision(0);
 		
 		Date now = new Date();
 		DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");

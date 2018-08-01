@@ -194,6 +194,8 @@ public class QuotesController {
 			String updateDate = formatter.format(now);
 			quotedMaterial.setUpdateDate(updateDate);
 			quotedMaterial.setUsdTRM(usdTRM);
+			quotedMaterial.setProjectId(quote.getInternalCode());
+			quotedMaterial.setRevision(quote.getRevision());
 
 			ExtQuotedMaterialsController.create(quotedMaterial);
 

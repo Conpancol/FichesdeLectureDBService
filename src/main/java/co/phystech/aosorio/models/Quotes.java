@@ -16,6 +16,7 @@ public class Quotes {
 	
 	private int internalCode;
 	private int externalCode;
+	private int revision;
 	private String providerCode;
 	private String receivedDate;
 	private String processedDate;
@@ -26,7 +27,7 @@ public class Quotes {
 	private String contactName;
 	private String incoterms;
 	private String note;
-	
+		
 	@Embedded
 	private List<QuotedMaterials> materialList = new ArrayList<QuotedMaterials>();
 
@@ -224,6 +225,20 @@ public class Quotes {
 	 */
 	public void setNote(String note) {
 		this.note = note;
+	}
+
+	/**
+	 * @return the revision
+	 */
+	public int getRevision() {
+		return revision;
+	}
+
+	/**
+	 * @param revision the revision to set
+	 */
+	public void setRevision(int revision) {
+		this.revision = revision;
 	}
 	
 	

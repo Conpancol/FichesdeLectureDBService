@@ -21,6 +21,8 @@ public class ExtQuotedMaterials extends QuotedMaterials {
 	private String providerId;
 	private String providerName;
 	private String updateDate;
+	private int projectId;
+	private int revision;
 	private double usdTRM;
 
 	public ExtQuotedMaterials() {
@@ -115,6 +117,34 @@ public class ExtQuotedMaterials extends QuotedMaterials {
 	 */
 	public void setUsdTRM(double usdTRM) {
 		this.usdTRM = usdTRM;
+	}
+
+	/**
+	 * @return the projectId
+	 */
+	public int getProjectId() {
+		return projectId;
+	}
+
+	/**
+	 * @param projectId the projectId to set
+	 */
+	public void setProjectId(int projectId) {
+		this.projectId = projectId;
+	}
+
+	/**
+	 * @return the revision
+	 */
+	public int getRevision() {
+		return revision;
+	}
+
+	/**
+	 * @param revision the revision to set
+	 */
+	public void setRevision(int revision) {
+		this.revision = revision;
 	}
 	
 }
