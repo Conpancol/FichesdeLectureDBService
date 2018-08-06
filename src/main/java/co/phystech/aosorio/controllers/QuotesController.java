@@ -227,17 +227,18 @@ public class QuotesController {
 		
 		datastore = NoSqlController.getInstance().getDatabase();
 
-		Query<Materials> query = datastore.createQuery(Materials.class);
+		
 
 		Iterator<QuotedMaterials> itr = materialList.iterator();
 
 		while (itr.hasNext()) {
 
-			Materials material = itr.next();
-
+			QuotedMaterials material = itr.next();
+			Query<Materials> query = datastore.createQuery(Materials.class);
 			List<Materials> result = query.field("itemcode").equal(material.getItemcode()).asList();
 
 			if (result.isEmpty()) {
+				slf4jLogger.info(material.getItemcode());
 				throw new NoSuchElementException();
 			}
 

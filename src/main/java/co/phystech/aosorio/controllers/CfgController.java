@@ -44,7 +44,9 @@ public class CfgController {
 		try {
 
 			input = new FileInputStream(ClassLoader.getSystemResource(pConfig).getPath());
-
+			
+			slf4jLogger.info("Config file loaded");
+			
 			// load a properties file
 			prop.load(input);
 

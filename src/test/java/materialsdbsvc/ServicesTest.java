@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
 
+import org.apache.commons.math3.exception.MathParseException;
 import org.junit.Test;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.query.Query;
@@ -174,7 +175,7 @@ public class ServicesTest {
 	@Test
 	public void theoreticalWeightsTest() {
 
-		List<ExtQuotedMaterials> pipes = ExtQuotedMaterialsController.readBy("category","PIPE");
+		List<ExtQuotedMaterials> pipes = ExtQuotedMaterialsController.readBy("category", "PIPE");
 		Iterator<ExtQuotedMaterials> itrPipes = pipes.iterator();
 
 		while (itrPipes.hasNext()) {
@@ -312,10 +313,20 @@ public class ServicesTest {
 			quoted.setQuantity(100.0);
 
 			slf4jLogger.debug("*HOLLOW*: " + material.getDimensions());
-			ArrayList<Double> dims = Utilities.getHollowBarDimsMM(material);
 
-			slf4jLogger.debug("*X= " + quoted.getType() + "\t" + String.valueOf(dims.get(0)) + "\t"
-					+ String.valueOf(dims.get(1)) + "\t" + String.valueOf(GeneralSvc.calculateMaterialWeight(quoted)));
+			try {
+
+				ArrayList<Double> dims = Utilities.getHollowBarDimsMM(material);
+
+				slf4jLogger.debug("*X= " + quoted.getType() + "\t" + String.valueOf(dims.get(0)) + "\t"
+						+ String.valueOf(dims.get(1)) + "\t"
+						+ String.valueOf(GeneralSvc.calculateMaterialWeight(quoted)));
+
+			} catch ( MathParseException ex) {
+
+				slf4jLogger.info(" PARSE ERROR AT HOLLOW*: " + material.getItemcode());
+
+			}
 
 		}
 
@@ -342,16 +353,30 @@ public class ServicesTest {
 			quoted.setType(material.getType());
 			quoted.setQuantity(100.0);
 			quoted.setUnit("M2");
-			
 
-			ArrayList<Double> dims = Utilities.getPlateDimsMM(material);
+			try {
+				
+				if( !material.getDimensions().contains("MM"))
+					continue;
+				
+				ArrayList<Double> dims = Utilities.getPlateDimsMM(material);
 
-			double weight = GeneralSvc.calculateMaterialWeight(quoted);
+				double weight = GeneralSvc.calculateMaterialWeight(quoted);
 
-			slf4jLogger.debug("*PLATE*: " + material.getDimensions());
+				slf4jLogger.debug("*PLATE*: " + material.getDimensions());
 
-			slf4jLogger.debug("*PLATE*: " + quoted.getType() + "\t" + String.valueOf(dims.get(0)) + "\t"
-					+ String.valueOf(dims.get(1)) + "\t" + String.valueOf(dims.get(2)) + "\t" + String.valueOf(weight));
+				slf4jLogger.debug("*PLATE*: " + quoted.getType() + "\t" + String.valueOf(dims.get(0)) + "\t"
+						+ String.valueOf(dims.get(1)) + "\t" + String.valueOf(dims.get(2)) + "\t"
+						+ String.valueOf(weight));
+
+			} catch (MathParseException ex) {
+
+				slf4jLogger.info(" PARSE ERROR at PLATE: " + material.getItemcode());
+				
+			} catch ( Exception ex) {
+				slf4jLogger.info(ex.getMessage());
+				slf4jLogger.info(" ERROR at: " + material.getItemcode());
+			}
 
 		}
 
@@ -499,13 +524,13 @@ public class ServicesTest {
 		String clean_dsc = quoted.getDescription().replaceAll("[^a-zA-Z0-9\",]", "");
 
 		slf4jLogger.info("*ELBOW*: " + clean_dsc);
-		
+
 		for (String category : Constants.FITTING_ELBOWS) {
 
 			boolean xcheck = Utilities.checkFittingCategory(category, quoted.getDescription(), 3);
 
 			if (xcheck) {
-			
+
 				String schedule = Utilities.getPipeSchedule(quoted);
 				String pipeSize = Utilities.getDimensionINCH(quoted).get(0);
 
@@ -517,14 +542,14 @@ public class ServicesTest {
 				slf4jLogger.debug("*ELBOW*: " + schedule);
 				slf4jLogger.debug("*ELBOW*: " + Utilities.getDimensionINCH(quoted));
 				slf4jLogger.debug("*ELBOW*: " + String.valueOf(weight));
-				
+
 			}
 		}
 	}
-	
+
 	@Test
 	public void allElbowsWeightTest() {
-		
+
 		datastore = NoSqlController.getInstance().getDatabase();
 
 		Query<Materials> query = datastore.createQuery(Materials.class);
@@ -536,82 +561,79 @@ public class ServicesTest {
 
 			Materials material = itr.next();
 			QuotedMaterials quoted = new QuotedMaterials();
-			
+
 			quoted.setDescription(material.getDescription());
 			quoted.setDimensions(material.getDimensions());
 			quoted.setItemcode(material.getItemcode());
 			quoted.setCategory(material.getCategory());
 			quoted.setQuantity(10.0);
-			
+
 			double weight = Utilities.getFittingWeight(quoted, Constants.FITTING_ELBOWS, 3);
 			double weight_total = GeneralSvc.calculateMaterialWeight(quoted);
-			
-			if( weight > 0.0 ) {
-				
+
+			if (weight > 0.0) {
+
 				slf4jLogger.debug("*ELBOW*: " + quoted.getDescription());
 				slf4jLogger.debug("*ELBOW*: " + quoted.getItemcode());
 				slf4jLogger.debug("*ELBOW*: " + Utilities.getPipeSchedule(quoted));
 				slf4jLogger.debug("*ELBOW*: " + Utilities.getDimensionINCH(quoted));
 				slf4jLogger.debug("*ELBOW*: " + String.valueOf(weight));
-				slf4jLogger.debug("*ELBOW*: " + String.valueOf(weight_total));			
+				slf4jLogger.debug("*ELBOW*: " + String.valueOf(weight_total));
 			}
-				
+
 		}
-		
+
 	}
-	
+
 	@Test
-	public void hastelloyTubeTest() { 
-		
+	public void hastelloyTubeTest() {
+
 		Supplier<FormulaFactory> formulaFactory = FormulaFactory::new;
-		
+
 		Formula formula = formulaFactory.get().getFormula("CYLINDERVOL");
-		
+
 		double wt = 0.035;
 		double od = 0.5;
-		double id = 0.5 - (2.0*wt);
-		
-		formula.addVariable("OD", od*Constants.UNIT_INCH_to_MM*Constants.UNIT_MM_to_M);
-		formula.addVariable("ID", id*Constants.UNIT_INCH_to_MM*Constants.UNIT_MM_to_M);
-		formula.addVariable("H" , 16.459);
+		double id = 0.5 - (2.0 * wt);
+
+		formula.addVariable("OD", od * Constants.UNIT_INCH_to_MM * Constants.UNIT_MM_to_M);
+		formula.addVariable("ID", id * Constants.UNIT_INCH_to_MM * Constants.UNIT_MM_to_M);
+		formula.addVariable("H", 16.459);
 
 		double volume = formula.eval();
 		double density = Utilities.getDensity("HASTELLOY") * Constants.UNIT_KG_o_M3;
-		double weight = volume*density;
-		
+		double weight = volume * density;
+
 		slf4jLogger.info("Tubing Hastelloy volume: " + String.valueOf(volume));
 		slf4jLogger.info("Tubing Hastelloy weight: " + String.valueOf(weight));
-		assertEquals(4.85377, weight,0.001);
-	
+		assertEquals(4.85377, weight, 0.001);
+
 		Materials material = new Materials();
 		material.setDimensions("16\",SCH40");
-		
-		formula.addVariable("OD", Utilities.getODMM(material)*Constants.UNIT_MM_to_M);
-		formula.addVariable("ID", Utilities.getIDMM(material)*Constants.UNIT_MM_to_M);
-		formula.addVariable("H" , 24.00);
+
+		formula.addVariable("OD", Utilities.getODMM(material) * Constants.UNIT_MM_to_M);
+		formula.addVariable("ID", Utilities.getIDMM(material) * Constants.UNIT_MM_to_M);
+		formula.addVariable("H", 24.00);
 
 		volume = formula.eval();
 		density = Utilities.getDensity("TITANIUM") * Constants.UNIT_KG_o_M3;
-		weight = volume*density;
-		
+		weight = volume * density;
+
 		slf4jLogger.info("Tubing Titanium volume: " + String.valueOf(volume));
 		slf4jLogger.info("Tubing Titanium weight: " + String.valueOf(weight));
-		assertEquals(1696.45, weight,0.01);
-		
-		
-		formula.addVariable("OD", 80.0*Constants.UNIT_MM_to_M);
-		formula.addVariable("H" , 2.00);
+		assertEquals(1696.45, weight, 0.01);
+
+		formula.addVariable("OD", 80.0 * Constants.UNIT_MM_to_M);
+		formula.addVariable("H", 2.00);
 
 		volume = formula.eval();
 		density = Utilities.getDensity("TITANIUM") * Constants.UNIT_KG_o_M3;
-		weight = volume*density;
-		
+		weight = volume * density;
+
 		slf4jLogger.info("BAR Titanium volume: " + String.valueOf(volume));
 		slf4jLogger.info("BAR Titanium weight: " + String.valueOf(weight));
-		assertEquals(45.30, weight,0.1);
-		
-		
+		assertEquals(45.30, weight, 0.1);
+
 	}
-	
 
 }

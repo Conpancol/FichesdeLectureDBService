@@ -52,7 +52,7 @@ public class RequestForQuotesController {
 
 		try {
 
-			slf4jLogger.debug(pRequest.body());
+			slf4jLogger.info(pRequest.body());
 
 			ObjectMapper mapper = new ObjectMapper();
 
@@ -99,6 +99,7 @@ public class RequestForQuotesController {
 			try {
 				// 1. this goes always first
 				xcheck(rfq.getMaterialList());
+				updateMaterialList(rfq.getMaterialList());
 				return datastore.save(rfq);
 
 			} catch (NoSuchElementException exception) {
@@ -176,22 +177,48 @@ public class RequestForQuotesController {
 
 		datastore = NoSqlController.getInstance().getDatabase();
 
-		Query<Materials> query = datastore.createQuery(Materials.class);
-
 		Iterator<ExtMaterials> itr = materialList.iterator();
 
+		slf4jLogger.info(String.valueOf(materialList.size()));
+		
 		while (itr.hasNext()) {
 
-			Materials material = itr.next();
-
+			ExtMaterials material = itr.next();
+			Query<Materials> query = datastore.createQuery(Materials.class);
 			List<Materials> result = query.field("itemcode").equal(material.getItemcode()).asList();
 
 			if (result.isEmpty()) {
+				slf4jLogger.info(material.getItemcode());
 				throw new NoSuchElementException();
 			}
 
 		}
 
+	}
+	
+	private static void updateMaterialList(List<ExtMaterials> materialList) {
+
+		datastore = NoSqlController.getInstance().getDatabase();
+
+		Iterator<ExtMaterials> itr = materialList.iterator();
+
+		slf4jLogger.info(String.valueOf(materialList.size()));
+		
+		while (itr.hasNext()) {
+
+			ExtMaterials material = itr.next();
+			Query<Materials> query = datastore.createQuery(Materials.class);
+			List<Materials> result = query.field("itemcode").equal(material.getItemcode()).asList();
+
+			if (!result.isEmpty()) {
+				
+				material.setCategory(result.get(0).getCategory());
+				material.setType(result.get(0).getType());
+				material.setDescription(result.get(0).getDescription());
+				material.setDimensions(result.get(0).getDimensions());
+				
+			}
+		}		
 	}
 	
 	public static Object quoteFinder(Request pRequest, Response pResponse) {

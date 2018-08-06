@@ -174,8 +174,8 @@ public class Utilities {
 
 	public static ArrayList<Double> getHollowBarDimsMM(Materials material) {
 
-		String dimensions = material.getDimensions();
-
+		String dimensions = material.getDimensions().toUpperCase();
+		
 		ArrayList<String> dims = new ArrayList<String>();
 		List<String> tokens = Arrays.asList(dimensions.split("X"));
 		dims.addAll(tokens);

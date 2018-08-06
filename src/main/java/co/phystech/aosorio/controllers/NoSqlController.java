@@ -24,10 +24,13 @@ public class NoSqlController {
 	
 	protected NoSqlController() {
 		
+		String dbName = "";
+		String dbAddress = "";
+			
 		CfgController dbConf = new CfgController(Constants.CONFIG_FILE);
 		
-		String dbName = dbConf.getDbName();
-		String dbAddress = dbConf.getDbAddress();
+		dbName = dbConf.getDbName();
+		dbAddress = dbConf.getDbAddress();
 		
 		morphia = new Morphia();
 		morphia.mapPackage("co.phystech.aosorio.dbmicrosvc");
