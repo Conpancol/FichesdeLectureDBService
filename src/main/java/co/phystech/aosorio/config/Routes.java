@@ -21,4 +21,6 @@ public class Routes {
 	
 	public static final String STATS = AUTH + "statistics";
 
+	public static final String PROVIDERS = AUTH + "providers/";
+
 }

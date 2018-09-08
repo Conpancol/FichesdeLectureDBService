@@ -42,6 +42,11 @@ public class Utilities {
 		String type;
 		double density;
 	}
+	
+	public class Countries {
+		String name;
+		String code;
+	}
 
 	private final static Logger slf4jLogger = LoggerFactory.getLogger(Utilities.class);
 
@@ -443,4 +448,37 @@ public class Utilities {
 
 	}
 
+	/**
+	 * generic method that searches for a specific type of material densities in
+	 * a json file
+	 * 
+	 * @param str
+	 * @return
+	 */
+	public static String getCountryCode(String str) {
+
+		try {
+
+			JsonReader jsonReader = new JsonReader(
+					new FileReader(ClassLoader.getSystemResource(Constants.CONFIG_COUNTRIES_FILE).getPath()));
+
+			jsonReader.beginArray();
+			Gson gson = new Gson();
+
+			while (jsonReader.hasNext()) {
+				Countries item = gson.fromJson(jsonReader, Countries.class);
+				if (item.name.toUpperCase().equals(str.toUpperCase()))
+					return item.code;
+			}
+
+			jsonReader.endArray();
+			jsonReader.close();
+
+		} catch (IOException ex) {
+			slf4jLogger.info(ex.getMessage());
+		}
+
+		return "NA";
+	}
+	
 }

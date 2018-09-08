@@ -16,6 +16,7 @@ import co.phystech.aosorio.services.StatisticsSvc;
 import co.phystech.aosorio.config.CorsFilter;
 import co.phystech.aosorio.config.Routes;
 import co.phystech.aosorio.controllers.MaterialsController;
+import co.phystech.aosorio.controllers.ProvidersController;
 import co.phystech.aosorio.controllers.QuotesController;
 import co.phystech.aosorio.controllers.RequestForQuotesController;
 
@@ -62,6 +63,14 @@ public class Main {
 		post(Routes.QUOTES, QuotesController::create, GeneralSvc.json());
 		
 		get(Routes.QUOTES + "/:id", QuotesController::read, GeneralSvc.json());
+		
+		// ... Providers
+		
+		post(Routes.PROVIDERS, ProvidersController::create, GeneralSvc.json());
+		
+		get(Routes.PROVIDERS, ProvidersController::readAll, GeneralSvc.json());
+				
+		get(Routes.PROVIDERS + "/:id", ProvidersController::read, GeneralSvc.json());
 		
 		// ... Statistics
 
