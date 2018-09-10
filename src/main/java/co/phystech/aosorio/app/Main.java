@@ -5,6 +5,7 @@ package co.phystech.aosorio.app;
 
 import static spark.Spark.post;
 import static spark.Spark.get;
+import static spark.Spark.put;
 //  import static spark.Spark.before;
 
 import static spark.Spark.options;
@@ -68,9 +69,13 @@ public class Main {
 		
 		post(Routes.PROVIDERS, ProvidersController::create, GeneralSvc.json());
 		
+		post(Routes.PROVIDERS + "/comments/:id", ProvidersController::addComment, GeneralSvc.json());
+		
+		post(Routes.PROVIDERS + "/:id", ProvidersController::read, GeneralSvc.json());
+		
 		get(Routes.PROVIDERS, ProvidersController::readAll, GeneralSvc.json());
-				
-		get(Routes.PROVIDERS + "/:id", ProvidersController::read, GeneralSvc.json());
+		
+		put(Routes.PROVIDERS + "/:id", ProvidersController::update, GeneralSvc.json());
 		
 		// ... Statistics
 

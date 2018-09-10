@@ -13,25 +13,16 @@ import org.mongodb.morphia.annotations.Id;
  * @author AOSORIO
  *
  */
-
 @Entity("providers")
-public class Providers {
+public class Providers extends Contacts {
 	
 	@Id
 	private String providerId;
 	
-	private String providerName; //change to name -> to base clase
 	private String category; 
-	private String country; // -> to base clase
-	private String countryCode; // -> to base clase
-	private String city; // -> to base clase
-	private String coordinates;  // -> to base clase
-	private String providerWeb; //change to webpage
-	private String address; // -> to base clase
-	private String phone; // -> to base clase
-	private String emailAddresses; // -> to base clase
-	private String contactNames; // -> to base clase
-	private String specialty; 
+	private String contactNames;
+	private String specialty;
+	private String taxId;
 	
 	@Embedded
     private List<Comments> comments;
@@ -51,87 +42,17 @@ public class Providers {
 	}
 
 	/**
-	 * @return the providerName
+	 * @return the category
 	 */
-	public String getProviderName() {
-		return providerName;
+	public String getCategory() {
+		return category;
 	}
 
 	/**
-	 * @param providerName the providerName to set
+	 * @param category the category to set
 	 */
-	public void setProviderName(String providerName) {
-		this.providerName = providerName;
-	}
-
-	/**
-	 * @return the country
-	 */
-	public String getCountry() {
-		return country;
-	}
-
-	/**
-	 * @param country the country to set
-	 */
-	public void setCountry(String country) {
-		this.country = country;
-	}
-
-	/**
-	 * @return the countryCode
-	 */
-	public String getCountryCode() {
-		return countryCode;
-	}
-
-	/**
-	 * @param countryCode the countryCode to set
-	 */
-	public void setCountryCode(String countryCode) {
-		this.countryCode = countryCode;
-	}
-
-	/**
-	 * @return the city
-	 */
-	public String getCity() {
-		return city;
-	}
-
-	/**
-	 * @param city the city to set
-	 */
-	public void setCity(String city) {
-		this.city = city;
-	}
-
-	/**
-	 * @return the providerWeb
-	 */
-	public String getProviderWeb() {
-		return providerWeb;
-	}
-
-	/**
-	 * @param providerWeb the providerWeb to set
-	 */
-	public void setProviderWeb(String providerWeb) {
-		this.providerWeb = providerWeb;
-	}
-
-	/**
-	 * @return the emailAddresses
-	 */
-	public String getEmailAddresses() {
-		return emailAddresses;
-	}
-
-	/**
-	 * @param emailAddresses the emailAddresses to set
-	 */
-	public void setEmailAddresses(String emailAddresses) {
-		this.emailAddresses = emailAddresses;
+	public void setCategory(String category) {
+		this.category = category;
 	}
 
 	/**
@@ -147,7 +68,7 @@ public class Providers {
 	public void setContactNames(String contactNames) {
 		this.contactNames = contactNames;
 	}
-	
+
 	/**
 	 * @return the specialty
 	 */
@@ -161,61 +82,19 @@ public class Providers {
 	public void setSpecialty(String specialty) {
 		this.specialty = specialty;
 	}
-	
+
 	/**
-	 * @return the category
+	 * @return the taxId
 	 */
-	public String getCategory() {
-		return category;
+	public String getTaxId() {
+		return taxId;
 	}
 
 	/**
-	 * @param category the category to set
+	 * @param taxId the taxId to set
 	 */
-	public void setCategory(String category) {
-		this.category = category;
-	}
-
-	/**
-	 * @return the coordinates
-	 */
-	public String getCoordinates() {
-		return coordinates;
-	}
-
-	/**
-	 * @param coordinates the coordinates to set
-	 */
-	public void setCoordinates(String coordinates) {
-		this.coordinates = coordinates;
-	}
-
-	/**
-	 * @return the address
-	 */
-	public String getAddress() {
-		return address;
-	}
-
-	/**
-	 * @param address the address to set
-	 */
-	public void setAddress(String address) {
-		this.address = address;
-	}
-
-	/**
-	 * @return the phone
-	 */
-	public String getPhone() {
-		return phone;
-	}
-
-	/**
-	 * @param phone the phone to set
-	 */
-	public void setPhone(String phone) {
-		this.phone = phone;
+	public void setTaxId(String taxId) {
+		this.taxId = taxId;
 	}
 
 	/**

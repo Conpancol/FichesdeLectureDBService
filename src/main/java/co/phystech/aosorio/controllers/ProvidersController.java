@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mongodb.WriteResult;
@@ -25,6 +26,7 @@ import co.phystech.aosorio.config.Constants;
 import co.phystech.aosorio.config.ProvidersPrefix;
 import co.phystech.aosorio.exceptions.AlreadyExistsException;
 import co.phystech.aosorio.models.BackendMessage;
+import co.phystech.aosorio.models.Comments;
 import co.phystech.aosorio.models.Providers;
 import co.phystech.aosorio.services.Utilities;
 import spark.Request;
@@ -123,13 +125,13 @@ public class ProvidersController {
 				Key<Providers> key = create(provider);
 				addedKeys.add(key);
 				item_result.addProperty("providerId", provider.getProviderId());
-				item_result.addProperty("providerName", provider.getProviderName());
+				item_result.addProperty("name", provider.getName());
 				item_result.addProperty("status", "Saved");
 
 			} else {
 
 				item_result.addProperty("providerId", result.getProviderId());
-				item_result.addProperty("providerName", result.getProviderName());
+				item_result.addProperty("name", result.getName());
 				item_result.addProperty("status", "Already in DB");
 			}
 
@@ -160,24 +162,26 @@ public class ProvidersController {
 		Query<Providers> query = datastore.createQuery(Providers.class);
 		List<Providers> result = query.field("providerId").equal(id).asList();
 
+		BackendMessage returnMessage = new BackendMessage();
+
 		try {
 
 			Providers provider = result.iterator().next();
+			String resultJson = new Gson().toJson(provider);
 			pResponse.status(200);
 			pResponse.type("application/json");
-			return provider;
+			return returnMessage.getOkMessage(resultJson);
 
 		} catch (NoSuchElementException ex) {
 
-			BackendMessage returnMessage = new BackendMessage();
 			slf4jLogger.debug("Provider not found");
 			pResponse.status(Constants.HTTP_BAD_REQUEST);
-			return returnMessage.getNotOkMessage("Provider not found");
+			return returnMessage.getNotOkMessage("Provider not founds");
 
 		}
 
 	}
-	
+
 	public static Object readAll(Request pRequest, Response pResponse) {
 
 		datastore = NoSqlController.getInstance().getDatabase();
@@ -185,15 +189,16 @@ public class ProvidersController {
 		Query<Providers> query = datastore.find(Providers.class);
 		List<Providers> result = query.asList();
 
-		try {
+		BackendMessage returnMessage = new BackendMessage();
 
+		try {
+			String resultJson = new Gson().toJson(result);
 			pResponse.status(200);
 			pResponse.type("application/json");
-			return result;
+			return returnMessage.getOkMessage(resultJson);
 
 		} catch (NoSuchElementException ex) {
 
-			BackendMessage returnMessage = new BackendMessage();
 			slf4jLogger.debug("Provider not found");
 			pResponse.status(Constants.HTTP_BAD_REQUEST);
 			return returnMessage.getNotOkMessage("Provider not found");
@@ -207,6 +212,89 @@ public class ProvidersController {
 		datastore = NoSqlController.getInstance().getDatabase();
 
 		return datastore.get(Providers.class, id);
+
+	}
+
+	public static Object update(Request pRequest, Response pResponse) {
+
+		String id = pRequest.params("id");
+
+		BackendMessage returnMessage = new BackendMessage();
+
+		try {
+
+			ObjectMapper mapper = new ObjectMapper();
+
+			ArrayList<Providers> newProviders = mapper.readValue(pRequest.body(),
+					new TypeReference<ArrayList<Providers>>() {
+					});
+
+			Providers modified = newProviders.iterator().next();
+
+			Key<Providers> keys = update(id, modified);
+
+			JsonArray jArray = new JsonArray();
+			JsonObject result = new JsonObject();
+			result.addProperty("providerId", keys.getId().toString());
+			result.addProperty("name", modified.getName());
+			result.addProperty("status", "Updated");
+			
+			jArray.add(result);
+			
+			pResponse.status(200);
+			pResponse.type("application/json");
+			return returnMessage.getOkMessage(jArray.toString());
+
+		} catch (IOException exception) {
+
+				slf4jLogger.debug(exception.getLocalizedMessage());
+				pResponse.status(Constants.HTTP_BAD_REQUEST);
+				return returnMessage.getNotOkMessage("Problem updating Provider");
+			
+		} catch (NoSuchElementException ex) {
+
+			slf4jLogger.debug("Provider not found");
+			pResponse.status(Constants.HTTP_BAD_REQUEST);
+			return returnMessage.getNotOkMessage("Provider not found");
+		}
+
+		
+	}
+
+	private static Key<Providers> update(String id, Providers modified) throws NoSuchElementException {
+
+		datastore = NoSqlController.getInstance().getDatabase();
+
+		Providers current = read(id);
+
+		if (current == null)
+			throw new NoSuchElementException();
+
+		current.setName(modified.getName());
+		current.setWebpage(modified.getWebpage());
+		current.setTaxId(modified.getTaxId());
+		current.setSpecialty(modified.getSpecialty());
+		current.setAddress(modified.getAddress());
+		current.setCity(modified.getCity());
+		current.setContactNames(modified.getContactNames());
+		current.setEmailAddresses(modified.getEmailAddresses());
+		current.setPhone(modified.getPhone());
+		current.setCoordinates(modified.getCoordinates());
+
+		// ...If country changed the set the new country code
+
+		if (!current.getCountry().equals(modified.getCountry())) {
+			current.setCountry(modified.getCountry());
+			current.setCountryCode(Utilities.getCountryCode(modified.getCountry()));
+		}
+
+		/*
+		 * ...If category changes, there is more work to do: 1. create a new
+		 * provider on the new category + comments 2. delete previous provider
+		 * 
+		 */
+
+		return create(current);
 
 	}
 
@@ -234,12 +322,12 @@ public class ProvidersController {
 
 		datastore = NoSqlController.getInstance().getDatabase();
 
-		String name = provider.getProviderName();
-		String web = provider.getProviderWeb();
+		String name = provider.getName();
+		String web = provider.getWebpage();
 
 		Query<Providers> query = datastore.createQuery(Providers.class);
-		List<Providers> result = query.field("providerName").containsIgnoreCase(name).field("providerWeb")
-				.containsIgnoreCase(web).asList();
+		List<Providers> result = query.field("name").containsIgnoreCase(name).field("webpage").containsIgnoreCase(web)
+				.asList();
 
 		if (result.isEmpty()) {
 			return null;
@@ -248,6 +336,72 @@ public class ProvidersController {
 			return result.get(0);
 		}
 
+	}
+
+	public static Object addComment(Request pRequest, Response pResponse) {
+
+		String id = pRequest.params("id");
+
+		BackendMessage returnMessage = new BackendMessage();
+
+		try {
+
+			ObjectMapper mapper = new ObjectMapper();
+
+			Comments newComment = mapper.readValue(pRequest.body(),Comments.class);
+		
+			JsonArray result = addComment(id, newComment);
+			
+			pResponse.status(200);
+			pResponse.type("application/json");
+			return returnMessage.getOkMessage(result.toString());
+
+		} catch (IOException exception) {
+
+			slf4jLogger.debug(exception.getLocalizedMessage());
+			pResponse.status(Constants.HTTP_BAD_REQUEST);
+			return returnMessage.getNotOkMessage("Problem adding comment to provider");
+					
+		} catch (NoSuchElementException ex) {
+
+			slf4jLogger.debug("Provider not found");
+			pResponse.status(Constants.HTTP_BAD_REQUEST);
+			return returnMessage.getNotOkMessage("Provider not founds");
+
+		}
+
+	}
+	
+	public static JsonArray addComment(String id, Comments comment) throws NoSuchElementException { 
+		
+		JsonArray jArray = new JsonArray();
+	
+		Providers provider = read(id);
+		
+		if( provider == null) 
+			throw new NoSuchElementException();
+		
+		List<Comments> comments = provider.getComments();
+		
+		if (comments == null )
+			comments = new ArrayList<Comments>();
+		
+		comments.add(comment);
+		
+		provider.setComments(comments);
+		
+		Key<Providers> key = create(provider);
+		
+		JsonObject result = new JsonObject();
+		result.addProperty("providerId", key.getId().toString());
+		result.addProperty("name", provider.getName());
+		result.addProperty("status", "Comment added");
+		
+		jArray.add(result);
+		
+		return jArray;
+		
+		
 	}
 
 }
