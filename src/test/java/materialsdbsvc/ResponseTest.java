@@ -3,7 +3,6 @@ package materialsdbsvc;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.bson.types.ObjectId;
 import org.junit.AfterClass;
@@ -125,12 +124,12 @@ public class ResponseTest {
 	@Test
 	public void ReaderTests() { 
 		
-		List<Materials> materials = MaterialsController.read(itemcode);
+		Materials materials = MaterialsController.read(itemcode);
 		
-		if( !materials.isEmpty() ) 
-			slf4jLogger.info("ReaderTests: " + materials.get(0).getItemcode());
+		if( !(materials == null) ) 
+			slf4jLogger.info("ReaderTests: " + materials.getItemcode());
 			
-		assertEquals("TEST0001",materials.get(0).getItemcode());
+		assertEquals("TEST0001",materials.getItemcode());
 
 
 	}

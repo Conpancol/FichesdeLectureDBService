@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mongodb.WriteResult;
@@ -121,21 +122,19 @@ public class MaterialsController {
 	public static Object read(Request pRequest, Response pResponse) {
 
 		String id = pRequest.params("id");
-
-		slf4jLogger.debug("Parameters: " + id);
-
-		List<Materials> result = read(id);
+		
+		BackendMessage returnMessage = new BackendMessage();
 
 		try {
 
-			Materials material = result.iterator().next();
+			Materials material = read(id);
 			pResponse.status(200);
 			pResponse.type("application/json");
-			return material;
+			String resultJson = new Gson().toJson(material);
+			return returnMessage.getOkMessage(resultJson);
 
 		} catch (NoSuchElementException ex) {
-
-			BackendMessage returnMessage = new BackendMessage();
+			
 			slf4jLogger.debug("Material not found");
 			pResponse.status(Constants.HTTP_BAD_REQUEST);
 			return returnMessage.getNotOkMessage("Material not found");
@@ -151,17 +150,87 @@ public class MaterialsController {
 		return datastore.get(Materials.class, id);
 
 	}
-
-	public static List<Materials> read(String itemCode) {
+	
+	public static Materials read(String itemCode) throws NoSuchElementException {
 
 		datastore = NoSqlController.getInstance().getDatabase();
 
 		Query<Materials> query = datastore.createQuery(Materials.class);
 		List<Materials> result = query.field("itemcode").equal(itemCode).asList();
+		
+		if( result.isEmpty() ) 
+			throw new NoSuchElementException();
 
-		return result;
+		return result.iterator().next();
 	}
 
+	public static Object update(Request pRequest, Response pResponse) {
+
+		String id = pRequest.params("id");
+
+		BackendMessage returnMessage = new BackendMessage();
+
+		try {
+
+			ObjectMapper mapper = new ObjectMapper();
+
+			ArrayList<Materials> newMaterials = mapper.readValue(pRequest.body(),
+					new TypeReference<ArrayList<Materials>>() {
+					});
+
+			Materials modified = newMaterials.iterator().next();
+
+			Key<Materials> keys = update(id, modified);
+			ObjectId materialId = (ObjectId) keys.getId();			
+			Materials material = read( materialId );
+			
+			JsonArray jArray = new JsonArray();
+			JsonObject result = new JsonObject();
+			result.addProperty("itemcode", material.getItemcode());
+			result.addProperty("description", material.getDescription());
+			result.addProperty("status", "Updated");
+			
+			jArray.add(result);
+			
+			pResponse.status(200);
+			pResponse.type("application/json");
+			return returnMessage.getOkMessage(jArray.toString());
+
+		} catch (IOException exception) {
+
+				slf4jLogger.debug(exception.getLocalizedMessage());
+				pResponse.status(Constants.HTTP_BAD_REQUEST);
+				return returnMessage.getNotOkMessage("Problem updating Material");
+			
+		} catch (NoSuchElementException ex) {
+
+			slf4jLogger.debug("Provider not found");
+			pResponse.status(Constants.HTTP_BAD_REQUEST);
+			return returnMessage.getNotOkMessage("Material not found");
+		}
+
+		
+	}
+
+	private static Key<Materials> update(String id, Materials modified) throws NoSuchElementException {
+
+		datastore = NoSqlController.getInstance().getDatabase();
+
+		Materials current = read(id);
+
+		if (current == null)
+			throw new NoSuchElementException();
+
+		current.setItemcode(modified.getItemcode());
+		current.setDescription(modified.getDescription());
+		current.setDimensions(modified.getDimensions());
+		current.setCategory(modified.getCategory());
+		current.setType(modified.getType());
+		
+		return create(current);
+
+	}
+	
 	public UpdateResults update(Materials material, UpdateOperations<Materials> operations) {
 
 		datastore = NoSqlController.getInstance().getDatabase();
@@ -254,19 +323,19 @@ public class MaterialsController {
 
 			slf4jLogger.debug("Searching in DB for item " + itemCode);
 
-			List<Materials> result = MaterialsController.read(itemCode);
+			Materials result = MaterialsController.read(itemCode);
 
 			JsonObject item_result = new JsonObject();
 
-			if (result.isEmpty()) {
+			if (result == null) {
 				// Material not found
 				item_result.addProperty("itemcode", material.getItemcode());
 				item_result.addProperty("description", "-");
 				item_result.addProperty("status", "Material not in DB");
 			} else {
 				// Material found - there should be only one
-				item_result.addProperty("itemcode", result.get(0).getItemcode());
-				item_result.addProperty("description", result.get(0).getDescription());
+				item_result.addProperty("itemcode", result.getItemcode());
+				item_result.addProperty("description", result.getDescription());
 				item_result.addProperty("status", "Material found");
 			}
 

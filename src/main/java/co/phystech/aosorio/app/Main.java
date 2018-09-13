@@ -49,7 +49,9 @@ public class Main {
 		
 		post(Routes.MATERIALS + "/xcheck/:id", MaterialsController::singlexcheck, GeneralSvc.json());
 		
-		get(Routes.MATERIALS + "/:id", MaterialsController::read, GeneralSvc.json());
+		post(Routes.MATERIALS + "/:id", MaterialsController::read, GeneralSvc.json());
+		
+		put(Routes.MATERIALS + "/:id", MaterialsController::update, GeneralSvc.json());
 		
 		// ... RFQs
 		
@@ -68,14 +70,14 @@ public class Main {
 		// ... Providers
 		
 		post(Routes.PROVIDERS, ProvidersController::create, GeneralSvc.json());
-		
-		post(Routes.PROVIDERS + "/comments/:id", ProvidersController::addComment, GeneralSvc.json());
+					
+		get(Routes.PROVIDERS, ProvidersController::readAll, GeneralSvc.json());
 		
 		post(Routes.PROVIDERS + "/:id", ProvidersController::read, GeneralSvc.json());
 		
-		get(Routes.PROVIDERS, ProvidersController::readAll, GeneralSvc.json());
-		
 		put(Routes.PROVIDERS + "/:id", ProvidersController::update, GeneralSvc.json());
+		
+		post(Routes.PROVIDERS + "/comments/:id", ProvidersController::addComment, GeneralSvc.json());
 		
 		// ... Statistics
 
