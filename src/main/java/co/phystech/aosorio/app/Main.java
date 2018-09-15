@@ -53,6 +53,8 @@ public class Main {
 		
 		put(Routes.MATERIALS + "/:id", MaterialsController::update, GeneralSvc.json());
 		
+		post(Routes.MATERIALS + "/weights/:id", MaterialsController::calculateWeight, GeneralSvc.json());
+		
 		// ... RFQs
 		
 		post(Routes.RFQS, RequestForQuotesController::create, GeneralSvc.json());

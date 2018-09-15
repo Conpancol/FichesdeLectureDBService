@@ -29,6 +29,8 @@ import com.mongodb.WriteResult;
 import co.phystech.aosorio.config.Constants;
 import co.phystech.aosorio.models.BackendMessage;
 import co.phystech.aosorio.models.Materials;
+import co.phystech.aosorio.models.QuotedMaterials;
+import co.phystech.aosorio.services.GeneralSvc;
 import spark.Request;
 import spark.Response;
 
@@ -122,7 +124,7 @@ public class MaterialsController {
 	public static Object read(Request pRequest, Response pResponse) {
 
 		String id = pRequest.params("id");
-		
+
 		BackendMessage returnMessage = new BackendMessage();
 
 		try {
@@ -134,7 +136,7 @@ public class MaterialsController {
 			return returnMessage.getOkMessage(resultJson);
 
 		} catch (NoSuchElementException ex) {
-			
+
 			slf4jLogger.debug("Material not found");
 			pResponse.status(Constants.HTTP_BAD_REQUEST);
 			return returnMessage.getNotOkMessage("Material not found");
@@ -142,7 +144,7 @@ public class MaterialsController {
 		}
 
 	}
-	
+
 	public static Materials read(ObjectId id) {
 
 		datastore = NoSqlController.getInstance().getDatabase();
@@ -150,15 +152,15 @@ public class MaterialsController {
 		return datastore.get(Materials.class, id);
 
 	}
-	
+
 	public static Materials read(String itemCode) throws NoSuchElementException {
 
 		datastore = NoSqlController.getInstance().getDatabase();
 
 		Query<Materials> query = datastore.createQuery(Materials.class);
 		List<Materials> result = query.field("itemcode").equal(itemCode).asList();
-		
-		if( result.isEmpty() ) 
+
+		if (result.isEmpty())
 			throw new NoSuchElementException();
 
 		return result.iterator().next();
@@ -181,27 +183,27 @@ public class MaterialsController {
 			Materials modified = newMaterials.iterator().next();
 
 			Key<Materials> keys = update(id, modified);
-			ObjectId materialId = (ObjectId) keys.getId();			
-			Materials material = read( materialId );
-			
+			ObjectId materialId = (ObjectId) keys.getId();
+			Materials material = read(materialId);
+
 			JsonArray jArray = new JsonArray();
 			JsonObject result = new JsonObject();
 			result.addProperty("itemcode", material.getItemcode());
 			result.addProperty("description", material.getDescription());
 			result.addProperty("status", "Updated");
-			
+
 			jArray.add(result);
-			
+
 			pResponse.status(200);
 			pResponse.type("application/json");
 			return returnMessage.getOkMessage(jArray.toString());
 
 		} catch (IOException exception) {
 
-				slf4jLogger.debug(exception.getLocalizedMessage());
-				pResponse.status(Constants.HTTP_BAD_REQUEST);
-				return returnMessage.getNotOkMessage("Problem updating Material");
-			
+			slf4jLogger.debug(exception.getLocalizedMessage());
+			pResponse.status(Constants.HTTP_BAD_REQUEST);
+			return returnMessage.getNotOkMessage("Problem updating Material");
+
 		} catch (NoSuchElementException ex) {
 
 			slf4jLogger.debug("Provider not found");
@@ -209,7 +211,6 @@ public class MaterialsController {
 			return returnMessage.getNotOkMessage("Material not found");
 		}
 
-		
 	}
 
 	private static Key<Materials> update(String id, Materials modified) throws NoSuchElementException {
@@ -226,11 +227,11 @@ public class MaterialsController {
 		current.setDimensions(modified.getDimensions());
 		current.setCategory(modified.getCategory());
 		current.setType(modified.getType());
-		
+
 		return create(current);
 
 	}
-	
+
 	public UpdateResults update(Materials material, UpdateOperations<Materials> operations) {
 
 		datastore = NoSqlController.getInstance().getDatabase();
@@ -250,13 +251,13 @@ public class MaterialsController {
 	}
 
 	public static long count() {
-		
+
 		datastore = NoSqlController.getInstance().getDatabase();
 		return datastore.find(Materials.class).count();
 	}
 
-	//...
-	
+	// ...
+
 	public static Object xcheck(Request pRequest, Response pResponse) {
 
 		BackendMessage returnMessage = new BackendMessage();
@@ -283,7 +284,7 @@ public class MaterialsController {
 		}
 
 	}
-	
+
 	public static Object singlexcheck(Request pRequest, Response pResponse) {
 
 		BackendMessage returnMessage = new BackendMessage();
@@ -291,21 +292,21 @@ public class MaterialsController {
 		String[] id = pRequest.params("id").split(",");
 
 		slf4jLogger.debug("Parameters: " + id[0]);
-				
+
 		pResponse.type("application/json");
 
 		ArrayList<Materials> materialsList = new ArrayList<Materials>();
-		
-		for ( int idx = 0; idx < id.length; idx++) {
+
+		for (int idx = 0; idx < id.length; idx++) {
 			Materials material = new Materials();
 			material.setItemcode(id[idx]);
 			materialsList.add(material);
 		}
-			
+
 		JsonArray keys = xchecker(materialsList);
 		pResponse.status(200);
 		return returnMessage.getOkMessage(keys.toString());
-				
+
 	}
 
 	public static JsonArray xchecker(List<Materials> materialsList) {
@@ -345,6 +346,72 @@ public class MaterialsController {
 		return jArray;
 
 	}
-	
-	
+
+	public static Object calculateWeight(Request pRequest, Response pResponse) {
+
+		BackendMessage returnMessage = new BackendMessage();
+
+		String id = pRequest.params("id");
+
+		pResponse.type("application/json");
+
+		slf4jLogger.info(pRequest.body());
+
+		JsonObject body = new Gson().fromJson(pRequest.body(), JsonObject.class);
+
+		double quantity = body.get("quantity").getAsDouble();
+		String units = body.get("units").getAsString();
+
+		JsonObject result = calculateWeight(id, quantity, units);
+		pResponse.status(200);
+		return returnMessage.getOkMessage(result.toString());
+
+	}
+
+	private static JsonObject calculateWeight(String itemCode, double quantity, String units) {
+
+		datastore = NoSqlController.getInstance().getDatabase();
+
+		slf4jLogger.info("Searching in DB for item " + itemCode);
+		slf4jLogger.info("Quantity is set to " + String.valueOf(quantity));
+		slf4jLogger.info("Units are " + units);
+
+		JsonObject item_result = new JsonObject();
+
+		try {
+
+			Materials result = MaterialsController.read(itemCode);
+
+			QuotedMaterials material = new QuotedMaterials();
+			material.setDescription(result.getDescription());
+			material.setDimensions(result.getDimensions());
+			material.setCategory(result.getCategory());
+			material.setType(result.getType());
+			material.setQuantity(quantity);
+			material.setUnit(units);
+
+			double weight = GeneralSvc.calculateMaterialWeight(material);
+
+			slf4jLogger.info("Material weight = " + String.valueOf(weight));
+
+			item_result.addProperty("itemcode", result.getItemcode());
+			item_result.addProperty("description", result.getDescription());
+			item_result.addProperty("quantity", String.format("%.2f", quantity));
+			item_result.addProperty("weight", String.format("%.2f", weight));
+
+		} catch (NoSuchElementException ex) {
+
+			slf4jLogger.info(ex.getMessage());
+
+			item_result.addProperty("itemcode", itemCode);
+			item_result.addProperty("description", "-");
+			item_result.addProperty("quantity", "-");
+			item_result.addProperty("weight", "Material not in DB");
+
+		}
+
+		return item_result;
+
+	}
+
 }

@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -118,7 +119,7 @@ public class Utilities {
 
 	}
 
-	public static String getPipeOuterDiameter(Materials material) {
+	public static String getPipeOuterDiameter(Materials material) throws NoSuchElementException {
 
 		String dimensions = material.getDimensions();
 
@@ -134,7 +135,30 @@ public class Utilities {
 				diameter = element.replaceAll("\\s", "");
 
 		}
+		
+		if (diameter == null)
+			throw new NoSuchElementException("Dimension not found in INCHES");
+		
+		return diameter;
 
+	}
+	
+	public static double getPipeOuterDiameterMM(Materials material) {
+
+		String dimensions = material.getDimensions();
+
+		List<String> dims = Arrays.asList(dimensions.split(","));
+		Iterator<String> itrStr = dims.iterator();
+
+		double diameter = 0.0;
+
+		while (itrStr.hasNext()) {
+
+			String element = itrStr.next();
+			if (searchPattern("MM", element))
+				diameter = Double.parseDouble(element.replaceAll("\\s", "").replaceAll("MM", ""));
+		}
+				
 		return diameter;
 
 	}
@@ -147,8 +171,16 @@ public class Utilities {
 
 		double outerDiam = 0.0;
 
-		String diameter = getPipeOuterDiameter(material);
-		outerDiam = parseDimension(diameter);
+		try {
+		
+			String diameter = getPipeOuterDiameter(material);
+			outerDiam = parseDimension(diameter);
+		
+		} catch (NoSuchElementException ex) {
+			slf4jLogger.info(ex.getMessage());
+			outerDiam = getPipeOuterDiameterMM(material);
+		
+		}
 
 		return outerDiam;
 
