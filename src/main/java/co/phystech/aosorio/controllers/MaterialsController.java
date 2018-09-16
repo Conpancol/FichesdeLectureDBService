@@ -206,7 +206,7 @@ public class MaterialsController {
 
 		} catch (NoSuchElementException ex) {
 
-			slf4jLogger.debug("Provider not found");
+			slf4jLogger.debug("Material not found");
 			pResponse.status(Constants.HTTP_BAD_REQUEST);
 			return returnMessage.getNotOkMessage("Material not found");
 		}

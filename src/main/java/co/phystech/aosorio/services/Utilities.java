@@ -43,7 +43,7 @@ public class Utilities {
 		String type;
 		double density;
 	}
-	
+
 	public class Countries {
 		String name;
 		String code;
@@ -60,12 +60,17 @@ public class Utilities {
 		double outerDiam = 0.0;
 
 		String schCode = getPipeSchedule(material);
-		String schDiameter = getPipeOuterDiameter(material);
 
-		PipeSchedules schedule = PipeSchedulesController.read(schCode, schDiameter);
+		try {
 
-		if (schedule != null)
-			outerDiam = schedule.getOdMM();
+			String schDiameter = getPipeOuterDiameter(material);
+			PipeSchedules schedule = PipeSchedulesController.read(schCode, schDiameter);
+			if (schedule != null)
+				outerDiam = schedule.getOdMM();
+
+		} catch (NoSuchElementException ex) {
+			outerDiam = getPipeOuterDiameterMM(material);
+		}
 
 		return outerDiam;
 
@@ -80,15 +85,21 @@ public class Utilities {
 		double innerDiam = 0.0;
 
 		String schCode = getPipeSchedule(material);
-		String schDiameter = getPipeOuterDiameter(material);
 
-		PipeSchedules schedule = PipeSchedulesController.read(schCode, schDiameter);
+		try {
 
-		if (schedule != null)
-			innerDiam = schedule.getIdMM();
+			String schDiameter = getPipeOuterDiameter(material);
+			PipeSchedules schedule = PipeSchedulesController.read(schCode, schDiameter);
+			if (schedule != null)
+				innerDiam = schedule.getIdMM();
+			
+		} catch (NoSuchElementException ex) {
 
+			innerDiam = getPipeInnerDiameterMM(material);
+			
+		}
+		
 		return innerDiam;
-
 	}
 
 	/**
@@ -135,14 +146,14 @@ public class Utilities {
 				diameter = element.replaceAll("\\s", "");
 
 		}
-		
+
 		if (diameter == null)
 			throw new NoSuchElementException("Dimension not found in INCHES");
-		
+
 		return diameter;
 
 	}
-	
+
 	public static double getPipeOuterDiameterMM(Materials material) {
 
 		String dimensions = material.getDimensions();
@@ -152,13 +163,71 @@ public class Utilities {
 
 		double diameter = 0.0;
 
-		while (itrStr.hasNext()) {
+		List<Double> foundValues = new ArrayList<Double>();
 
-			String element = itrStr.next();
-			if (searchPattern("MM", element))
-				diameter = Double.parseDouble(element.replaceAll("\\s", "").replaceAll("MM", ""));
+		try {
+
+			while (itrStr.hasNext()) {
+
+				String element = itrStr.next();
+				if (searchPattern("MM", element)) {
+					diameter = Double.parseDouble(element.replaceAll("\\s", "").replaceAll("\\D+", ""));
+					foundValues.add(diameter);
+				}
+			}
+			
+			diameter = Collections.max(foundValues);
+			slf4jLogger.info("OD(MM) " + String.valueOf(diameter) );
+			
+		} catch (NumberFormatException ex) {
+		
+			slf4jLogger.info("Number format exception - dimensions= " + dimensions + " " + material.getItemcode());
+			diameter = 0.0;
+		
+		} catch (NoSuchElementException ex) {
+			
+			diameter = 0.0;
 		}
-				
+
+		return diameter;
+
+	}
+	
+	public static double getPipeInnerDiameterMM(Materials material) {
+
+		String dimensions = material.getDimensions();
+
+		List<String> dims = Arrays.asList(dimensions.split(","));
+		Iterator<String> itrStr = dims.iterator();
+
+		double diameter = 0.0;
+
+		List<Double> foundValues = new ArrayList<Double>();
+
+		try {
+
+			while (itrStr.hasNext()) {
+
+				String element = itrStr.next();
+				if (searchPattern("MM", element)) {
+					diameter = Double.parseDouble(element.replaceAll("\\s", "").replaceAll("\\D+", ""));
+					foundValues.add(diameter);
+				}
+			}
+			
+			diameter = Collections.min(foundValues);
+			slf4jLogger.info("ID(MM) " + String.valueOf(diameter) );
+			
+		} catch (NumberFormatException ex) {
+		
+			slf4jLogger.info("Number format exception - dimensions= " + dimensions + " " + material.getItemcode());
+			diameter = 0.0;
+		
+		} catch (NoSuchElementException ex) {
+			
+			diameter = 0.0;
+		}
+
 		return diameter;
 
 	}
@@ -172,14 +241,14 @@ public class Utilities {
 		double outerDiam = 0.0;
 
 		try {
-		
+
 			String diameter = getPipeOuterDiameter(material);
 			outerDiam = parseDimension(diameter);
-		
+
 		} catch (NoSuchElementException ex) {
 			slf4jLogger.info(ex.getMessage());
 			outerDiam = getPipeOuterDiameterMM(material);
-		
+
 		}
 
 		return outerDiam;
@@ -212,7 +281,7 @@ public class Utilities {
 	public static ArrayList<Double> getHollowBarDimsMM(Materials material) {
 
 		String dimensions = material.getDimensions().toUpperCase();
-		
+
 		ArrayList<String> dims = new ArrayList<String>();
 		List<String> tokens = Arrays.asList(dimensions.split("X"));
 		dims.addAll(tokens);
@@ -352,7 +421,7 @@ public class Utilities {
 	}
 
 	/**
-	 * Generid method that uses REGEX to match a pattern in a string
+	 * Generic method that uses REGEX to match a pattern in a string
 	 * 
 	 * @param str
 	 * @param stringToSearch
@@ -425,8 +494,8 @@ public class Utilities {
 						else
 							slf4jLogger.debug("not found" + category + pipeSize + schedule);
 					}
-				} else { 
-					
+				} else {
+
 				}
 			}
 
@@ -440,8 +509,9 @@ public class Utilities {
 
 	public static boolean checkFittingCategory(String category, String description, int nmatch) {
 
-		String clean_dsc = description.replaceAll("[^a-zA-Z0-9\",]", "").replace("LONGRADIUS","LR").replace("SHORTRADIUS","SR");
-		
+		String clean_dsc = description.replaceAll("[^a-zA-Z0-9\",]", "").replace("LONGRADIUS", "LR")
+				.replace("SHORTRADIUS", "SR");
+
 		HashSet<String> hash_dsc = new HashSet<>(Arrays.asList(clean_dsc.split(",")));
 		String[] tokens = category.split(",");
 
@@ -494,6 +564,8 @@ public class Utilities {
 			JsonReader jsonReader = new JsonReader(
 					new FileReader(ClassLoader.getSystemResource(Constants.CONFIG_COUNTRIES_FILE).getPath()));
 
+			jsonReader.setLenient(true); // FIX: JsonReader.setLenient(true) to
+											// accept malformed JSON at line
 			jsonReader.beginArray();
 			Gson gson = new Gson();
 
@@ -512,5 +584,5 @@ public class Utilities {
 
 		return "NA";
 	}
-	
+
 }

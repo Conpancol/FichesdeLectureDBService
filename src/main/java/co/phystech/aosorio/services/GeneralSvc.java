@@ -143,10 +143,14 @@ public class GeneralSvc {
 			formula.addVariable("OD", Utilities.getODMM(material)*Constants.UNIT_MM_to_M);
 			formula.addVariable("ID", Utilities.getIDMM(material)*Constants.UNIT_MM_to_M);
 			formula.addVariable("H" , material.getQuantity());
-
+			
 			double volume = formula.eval();
 			double density = Utilities.getDensity(material.getType()) * Constants.UNIT_KG_o_M3;
 
+			slf4jLogger.info("H " + String.valueOf(material.getQuantity()));
+			slf4jLogger.info("rho " + String.valueOf(density));
+			slf4jLogger.info("volume " + String.valueOf(volume));
+			
 			return volume*density;
 
 		} else if ( material.getCategory().contains("PLATE") ) {
