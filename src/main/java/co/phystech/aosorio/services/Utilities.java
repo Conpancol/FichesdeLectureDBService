@@ -92,13 +92,13 @@ public class Utilities {
 			PipeSchedules schedule = PipeSchedulesController.read(schCode, schDiameter);
 			if (schedule != null)
 				innerDiam = schedule.getIdMM();
-			
+
 		} catch (NoSuchElementException ex) {
 
 			innerDiam = getPipeInnerDiameterMM(material);
-			
+
 		}
-		
+
 		return innerDiam;
 	}
 
@@ -175,24 +175,24 @@ public class Utilities {
 					foundValues.add(diameter);
 				}
 			}
-			
+
 			diameter = Collections.max(foundValues);
-			slf4jLogger.info("OD(MM) " + String.valueOf(diameter) );
-			
+			slf4jLogger.info("OD(MM) " + String.valueOf(diameter));
+
 		} catch (NumberFormatException ex) {
-		
+
 			slf4jLogger.info("Number format exception - dimensions= " + dimensions + " " + material.getItemcode());
 			diameter = 0.0;
-		
+
 		} catch (NoSuchElementException ex) {
-			
+
 			diameter = 0.0;
 		}
 
 		return diameter;
 
 	}
-	
+
 	public static double getPipeInnerDiameterMM(Materials material) {
 
 		String dimensions = material.getDimensions();
@@ -214,17 +214,17 @@ public class Utilities {
 					foundValues.add(diameter);
 				}
 			}
-			
+
 			diameter = Collections.min(foundValues);
-			slf4jLogger.info("ID(MM) " + String.valueOf(diameter) );
-			
+			slf4jLogger.info("ID(MM) " + String.valueOf(diameter));
+
 		} catch (NumberFormatException ex) {
-		
+
 			slf4jLogger.info("Number format exception - dimensions= " + dimensions + " " + material.getItemcode());
 			diameter = 0.0;
-		
+
 		} catch (NoSuchElementException ex) {
-			
+
 			diameter = 0.0;
 		}
 
@@ -583,6 +583,20 @@ public class Utilities {
 		}
 
 		return "NA";
+	}
+
+	public static double calculateAverage(List<Double> values) {
+		
+		Double sum = 0.0;
+		
+		if (!values.isEmpty()) {
+			for (Double mark : values) {
+				sum += mark;
+			}
+			return sum.doubleValue() / values.size();
+		}
+		
+		return sum;
 	}
 
 }
