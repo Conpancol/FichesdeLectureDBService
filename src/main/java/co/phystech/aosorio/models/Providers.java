@@ -23,6 +23,8 @@ public class Providers extends Contacts {
 	private String contactNames;
 	private String specialty;
 	private String taxId;
+	private String bank;
+	private String iban;
 	
 	@Embedded
     private List<Comments> comments;
@@ -95,6 +97,34 @@ public class Providers extends Contacts {
 	 */
 	public void setTaxId(String taxId) {
 		this.taxId = taxId;
+	}
+
+	/**
+	 * @return the bank
+	 */
+	public String getBank() {
+		return bank;
+	}
+
+	/**
+	 * @param bank the bank to set
+	 */
+	public void setBank(String bank) {
+		this.bank = bank;
+	}
+
+	/**
+	 * @return the iban
+	 */
+	public String getIban() {
+		return iban;
+	}
+
+	/**
+	 * @param iban the iban to set
+	 */
+	public void setIban(String iban) {
+		this.iban = iban;
 	}
 
 	/**

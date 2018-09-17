@@ -65,8 +65,7 @@ public class Utilities {
 
 			String schDiameter = getPipeOuterDiameter(material);
 			PipeSchedules schedule = PipeSchedulesController.read(schCode, schDiameter);
-			if (schedule != null)
-				outerDiam = schedule.getOdMM();
+			outerDiam = schedule.getOdMM();
 
 		} catch (NoSuchElementException ex) {
 			outerDiam = getPipeOuterDiameterMM(material);
@@ -90,13 +89,10 @@ public class Utilities {
 
 			String schDiameter = getPipeOuterDiameter(material);
 			PipeSchedules schedule = PipeSchedulesController.read(schCode, schDiameter);
-			if (schedule != null)
-				innerDiam = schedule.getIdMM();
+			innerDiam = schedule.getIdMM();
 
 		} catch (NoSuchElementException ex) {
-
 			innerDiam = getPipeInnerDiameterMM(material);
-
 		}
 
 		return innerDiam;
@@ -177,10 +173,9 @@ public class Utilities {
 			}
 
 			diameter = Collections.max(foundValues);
-			slf4jLogger.info("OD(MM) " + String.valueOf(diameter));
+			slf4jLogger.debug("OD(MM) " + String.valueOf(diameter));
 
 		} catch (NumberFormatException ex) {
-
 			slf4jLogger.info("Number format exception - dimensions= " + dimensions + " " + material.getItemcode());
 			diameter = 0.0;
 
@@ -216,10 +211,9 @@ public class Utilities {
 			}
 
 			diameter = Collections.min(foundValues);
-			slf4jLogger.info("ID(MM) " + String.valueOf(diameter));
+			slf4jLogger.debug("ID(MM) " + String.valueOf(diameter));
 
 		} catch (NumberFormatException ex) {
-
 			slf4jLogger.info("Number format exception - dimensions= " + dimensions + " " + material.getItemcode());
 			diameter = 0.0;
 

@@ -34,6 +34,9 @@ public class ProvidersTest {
 	private static final String contactNames = "Ms Akane";
 	private static final String specialty = "High tech robotics";
 	private static final String taxId = "1234567890";
+	private static final String bank = "ABN AMRO";
+	private static final String iban = "1234567890";
+	private static final boolean hasdt = false;
 
 	@BeforeClass
 	public static void beforeClass() {
@@ -54,6 +57,9 @@ public class ProvidersTest {
 		provider.setContactNames(contactNames);
 		provider.setSpecialty(specialty);
 		provider.setTaxId(taxId);
+		provider.setBank(bank);
+		provider.setIban(iban);
+		provider.setHasDataProtection(hasdt);
 
 		Comments acomment = new Comments();
 		acomment.setDate("01/01/2100");

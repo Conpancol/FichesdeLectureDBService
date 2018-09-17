@@ -147,9 +147,11 @@ public class GeneralSvc {
 			double volume = formula.eval();
 			double density = Utilities.getDensity(material.getType()) * Constants.UNIT_KG_o_M3;
 
-			slf4jLogger.info("H " + String.valueOf(material.getQuantity()));
-			slf4jLogger.info("rho " + String.valueOf(density));
-			slf4jLogger.info("volume " + String.valueOf(volume));
+			slf4jLogger.debug("OD " + Utilities.getODMM(material));
+			slf4jLogger.debug("ID " + Utilities.getIDMM(material));
+			slf4jLogger.debug("H " + String.valueOf(material.getQuantity()));
+			slf4jLogger.debug("rho " + String.valueOf(density));
+			slf4jLogger.debug("volume " + String.valueOf(volume));
 			
 			return volume*density;
 

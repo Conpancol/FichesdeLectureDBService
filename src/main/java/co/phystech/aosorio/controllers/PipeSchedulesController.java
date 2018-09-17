@@ -1,6 +1,7 @@
 package co.phystech.aosorio.controllers;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.query.Query;
@@ -15,7 +16,7 @@ public class PipeSchedulesController {
 
 	private static Datastore datastore;
 
-	public static PipeSchedules read(String code, String schDiameter) {
+	public static PipeSchedules read(String code, String schDiameter) throws NoSuchElementException {
 
 		datastore = NoSqlController.getInstance().getDatabase();
 		
@@ -25,7 +26,7 @@ public class PipeSchedulesController {
 		List<PipeSchedules> result = query.field("code").equal(code).field("nps").equal(schDiameter).asList();
 
 		if (result.isEmpty())
-			return null;
+			throw new NoSuchElementException("No SCH found on DB");
 		else {
 			slf4jLogger.debug("Schedule found");
 			return result.get(0);

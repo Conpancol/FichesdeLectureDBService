@@ -62,5 +62,37 @@ public class QuotesAnalysisSvc {
 		
 	}
 	
+	public static void runAnalysisByCategory( String category, String type, String country) {
+		
+		datastore = NoSqlController.getInstance().getDatabase();
+				
+		Query<ExtQuotedMaterials> query = datastore.createQuery(ExtQuotedMaterials.class);
+		List<ExtQuotedMaterials> result = query.field("category").equal(category).
+				field("type").equal(type).
+				field("country").equal(country).
+				asList();
+		
+		Iterator<ExtQuotedMaterials> itr = result.iterator();
+		
+		ArrayList<Double> prices = new ArrayList<Double>();
+		
+		while( itr.hasNext() ) {
+			
+			ExtQuotedMaterials material = itr.next();
+			
+			double totalUSD = material.getTotalPrice();
+			double quantity = material.getQuantity(); //make an exception in case units are not metric (M, M2)
+			double ratio = totalUSD / quantity;
+			
+			prices.add(ratio);
+			
+		}
+	
+		double average = Utilities.calculateAverage(prices);
+		
+		slf4jLogger.info("category " + category + " type " + type + " country " + country);
+		slf4jLogger.info("Average= " + String.valueOf(average));
+	
+	}
 	
 }

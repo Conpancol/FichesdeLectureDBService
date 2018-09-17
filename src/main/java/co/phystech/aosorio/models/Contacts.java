@@ -18,6 +18,7 @@ public class Contacts {
 	private String coordinates;
 	private String webpage;
 	private String emailAddresses;
+	private boolean hasDataProtection;
 	
 	/**
 	 * @return the name
@@ -126,6 +127,18 @@ public class Contacts {
 	 */
 	public void setEmailAddresses(String emailAddresses) {
 		this.emailAddresses = emailAddresses;
+	}
+	/**
+	 * @return the hasDataProtection
+	 */
+	public boolean isHasDataProtection() {
+		return hasDataProtection;
+	}
+	/**
+	 * @param hasDataProtection the hasDataProtection to set
+	 */
+	public void setHasDataProtection(boolean hasDataProtection) {
+		this.hasDataProtection = hasDataProtection;
 	}
 
 	

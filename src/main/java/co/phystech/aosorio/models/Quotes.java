@@ -27,6 +27,7 @@ public class Quotes {
 	private String contactName;
 	private String incoterms;
 	private String note;
+	private String edt;
 		
 	@Embedded
 	private List<QuotedMaterials> materialList = new ArrayList<QuotedMaterials>();
@@ -240,7 +241,19 @@ public class Quotes {
 	public void setRevision(int revision) {
 		this.revision = revision;
 	}
-	
-	
+
+	/**
+	 * @return the edt
+	 */
+	public String getEdt() {
+		return edt;
+	}
+
+	/**
+	 * @param edt the edt to set
+	 */
+	public void setEdt(String edt) {
+		this.edt = edt;
+	}
 
 }
