@@ -324,20 +324,23 @@ public class MaterialsController {
 
 			slf4jLogger.debug("Searching in DB for item " + itemCode);
 
-			Materials result = MaterialsController.read(itemCode);
-
 			JsonObject item_result = new JsonObject();
 
-			if (result == null) {
-				// Material not found
-				item_result.addProperty("itemcode", material.getItemcode());
-				item_result.addProperty("description", "-");
-				item_result.addProperty("status", "Material not in DB");
-			} else {
+			try {
+			
+				Materials result = MaterialsController.read(itemCode);
+		
 				// Material found - there should be only one
 				item_result.addProperty("itemcode", result.getItemcode());
 				item_result.addProperty("description", result.getDescription());
 				item_result.addProperty("status", "Material found");
+				
+			} catch( NoSuchElementException ex) {
+
+				// Material not found
+				item_result.addProperty("itemcode", material.getItemcode());
+				item_result.addProperty("description", "-");
+				item_result.addProperty("status", "Material not in DB");
 			}
 
 			jArray.add(item_result);
