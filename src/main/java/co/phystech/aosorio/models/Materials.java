@@ -17,11 +17,13 @@ public class Materials {
 	@Id
     private ObjectId id;
 
-	private String itemcode;
+	private String itemcode; // 
 	private String description;
 	private String type;
 	private String category;
 	private String dimensions;
+	private String code;
+
 	
 	/**
 	 * @return the itemcode
@@ -82,6 +84,18 @@ public class Materials {
 	 */
 	public void setDimensions(String dimensions) {
 		this.dimensions = dimensions;
+	}
+	/**
+	 * @return the code
+	 */
+	public String getCode() {
+		return code;
+	}
+	/**
+	 * @param code the code to set
+	 */
+	public void setCode(String code) {
+		this.code = code;
 	}
     
 	

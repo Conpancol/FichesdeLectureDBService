@@ -28,6 +28,9 @@ public class Providers extends Contacts {
 	
 	@Embedded
     private List<Comments> comments;
+	
+	@Embedded
+    private List<ProcurementCodes> procurementCodes;
 
 	/**
 	 * @return the providerId

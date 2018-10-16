@@ -20,6 +20,9 @@ public class QuotedMaterials extends ExtMaterials {
 	private String currency;
 	private String countryOrigin;
 	private String note;
+	private String partNumber;
+	private String oldPartNumber;
+		
 	/**
 	 * @return the theoreticalWeight
 	 */
@@ -103,6 +106,30 @@ public class QuotedMaterials extends ExtMaterials {
 	 */
 	public void setCountryOrigin(String countryOrigin) {
 		this.countryOrigin = countryOrigin;
+	}
+	/**
+	 * @return the partNumber
+	 */
+	public String getPartNumber() {
+		return partNumber;
+	}
+	/**
+	 * @param partNumber the partNumber to set
+	 */
+	public void setPartNumber(String partNumber) {
+		this.partNumber = partNumber;
+	}
+	/**
+	 * @return the oldPartNumber
+	 */
+	public String getOldPartNumber() {
+		return oldPartNumber;
+	}
+	/**
+	 * @param oldPartNumber the oldPartNumber to set
+	 */
+	public void setOldPartNumber(String oldPartNumber) {
+		this.oldPartNumber = oldPartNumber;
 	}
 	
 	
