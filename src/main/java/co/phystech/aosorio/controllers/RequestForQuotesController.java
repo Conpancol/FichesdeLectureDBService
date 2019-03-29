@@ -209,64 +209,17 @@ public class RequestForQuotesController {
 
 	}
 
-	public static Object updateMaterial(Request pRequest, Response pResponse) {
-
-		datastore = NoSqlController.getInstance().getDatabase();
-
-		BackendMessage returnMessage = new BackendMessage();
-
-		int id = Integer.valueOf(pRequest.params("id"));
-		int orderNumber = Integer.valueOf(pRequest.params("ordernumber"));
-
-		slf4jLogger.debug("Parameters: " + id + " " + orderNumber);
-
-		Query<RequestForQuotes> query = datastore.createQuery(RequestForQuotes.class);
-		List<RequestForQuotes> result = query.field("internalCode").equal(id).asList();
-
-		pResponse.type("application/json");
-
-		try {
-
-			RequestForQuotes rfq = result.iterator().next();
-			pResponse.status(200);
-
-			Gson gson = new Gson();
-			String rfq_json = gson.toJson(rfq);
-			return returnMessage.getOkMessage(rfq_json);
-
-		} catch (NoSuchElementException exception) {
-
-			slf4jLogger.debug("RFQ not found");
-			pResponse.status(Constants.HTTP_BAD_REQUEST);
-			return returnMessage.getNotOkMessage("RFQ not found");
-
-		}
-
-	}
-
 	public static Object refreshMaterials(Request pRequest, Response pResponse) {
-
-		datastore = NoSqlController.getInstance().getDatabase();
-
-		BackendMessage returnMessage = new BackendMessage();
 
 		int id = Integer.valueOf(pRequest.params("id"));
 
 		slf4jLogger.debug("Parameters: " + id);
 
-		Query<RequestForQuotes> query = datastore.createQuery(RequestForQuotes.class);
-		List<RequestForQuotes> result = query.field("internalCode").equal(id).asList();
-
-		pResponse.type("application/json");
+		BackendMessage returnMessage = new BackendMessage();
 
 		try {
 
-			RequestForQuotes rfq = result.iterator().next();
-			pResponse.status(200);
-
-			Gson gson = new Gson();
-			String rfq_json = gson.toJson(rfq);
-			return returnMessage.getOkMessage(rfq_json);
+			return returnMessage.getOkMessage("");
 
 		} catch (NoSuchElementException exception) {
 

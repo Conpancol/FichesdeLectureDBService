@@ -276,15 +276,23 @@ public class Utilities {
 
 		String dimensions = material.getDimensions().toUpperCase();
 
-		ArrayList<String> dims = new ArrayList<String>();
-		List<String> tokens = Arrays.asList(dimensions.split("X"));
-		dims.addAll(tokens);
-
-		if (dims.size() == 3)
-			dims.remove(2);
-
-		return parseMultipleDimensions(dims);
-
+		//... check there is not inch dimensions
+		List<String> parts = Arrays.asList(dimensions.split(","));
+		Iterator<String> itrPart = parts.iterator();
+		
+		while( itrPart.hasNext()) {
+			String part = itrPart.next();
+			if (part.contains("MM")) {
+				ArrayList<String> dims = new ArrayList<String>();
+				List<String> tokens = Arrays.asList(part.split("X"));
+				dims.addAll(tokens);
+				if (dims.size() == 3)
+					dims.remove(2);
+				return parseMultipleDimensions(dims);
+			}
+		}
+		
+		return new ArrayList<Double>(Arrays.asList(0.0, 0.0));
 	}
 
 	public static ArrayList<Double> getBeamDimsINCH(Materials material) {

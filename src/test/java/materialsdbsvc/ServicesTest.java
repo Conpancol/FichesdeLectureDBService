@@ -313,6 +313,9 @@ public class ServicesTest {
 			quoted.setQuantity(100.0);
 
 			slf4jLogger.debug("*HOLLOW*: " + material.getDimensions());
+			
+			if( material.getDimensions().equals("NA"))
+				continue;
 
 			try {
 
@@ -322,10 +325,17 @@ public class ServicesTest {
 						+ String.valueOf(dims.get(1)) + "\t"
 						+ String.valueOf(GeneralSvc.calculateMaterialWeight(quoted)));
 
-			} catch ( MathParseException ex) {
-
+			} catch ( NumberFormatException ex ) { 
+			
+				slf4jLogger.info(ex.getLocalizedMessage());
 				slf4jLogger.info(" PARSE ERROR AT HOLLOW*: " + material.getItemcode());
-
+				slf4jLogger.info(" PARSE ERROR AT HOLLOW*: " + material.getDimensions());
+			
+			}
+			catch ( MathParseException ex) {
+				slf4jLogger.info(ex.getLocalizedMessage());
+				slf4jLogger.info(" PARSE ERROR AT HOLLOW*: " + material.getItemcode());
+				slf4jLogger.info(" PARSE ERROR AT HOLLOW*: " + material.getDimensions());
 			}
 
 		}
@@ -355,10 +365,10 @@ public class ServicesTest {
 			quoted.setUnit("M2");
 
 			try {
-				
-				if( !material.getDimensions().contains("MM"))
+
+				if (!material.getDimensions().contains("MM"))
 					continue;
-				
+
 				ArrayList<Double> dims = Utilities.getPlateDimsMM(material);
 
 				double weight = GeneralSvc.calculateMaterialWeight(quoted);
@@ -372,8 +382,8 @@ public class ServicesTest {
 			} catch (MathParseException ex) {
 
 				slf4jLogger.info(" PARSE ERROR at PLATE: " + material.getItemcode());
-				
-			} catch ( Exception ex) {
+
+			} catch (Exception ex) {
 				slf4jLogger.info(ex.getMessage());
 				slf4jLogger.info(" ERROR at: " + material.getItemcode());
 			}

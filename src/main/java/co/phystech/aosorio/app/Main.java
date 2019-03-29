@@ -62,9 +62,7 @@ public class Main {
 		post(Routes.RFQS + "/:id", RequestForQuotesController::read, GeneralSvc.json());
 		
 		put(Routes.RFQS + "/:id", RequestForQuotesController::update, GeneralSvc.json());
-		
-		put(Routes.RFQS + "/:id/:ordernumber", RequestForQuotesController::updateMaterial, GeneralSvc.json());
-		
+				
 		put(Routes.RFQS + "/:id", RequestForQuotesController::refreshMaterials, GeneralSvc.json());
 		
 		post(Routes.RFQS + "/quotes", RequestForQuotesController::quoteFinder, GeneralSvc.json());
