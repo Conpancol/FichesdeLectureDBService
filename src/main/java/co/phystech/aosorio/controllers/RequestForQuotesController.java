@@ -4,6 +4,7 @@
 package co.phystech.aosorio.controllers;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -18,6 +19,7 @@ import org.mongodb.morphia.query.UpdateResults;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -117,10 +119,137 @@ public class RequestForQuotesController {
 
 	public static Object read(Request pRequest, Response pResponse) {
 
+		int id = Integer.valueOf(pRequest.params("id"));
+
+		BackendMessage returnMessage = new BackendMessage();
+
+		try {
+
+			RequestForQuotes rfq = read(id);
+			pResponse.status(200);
+			pResponse.type("application/json");
+			String resultJson = new Gson().toJson(rfq);
+			return returnMessage.getOkMessage(resultJson);
+
+		} catch (NoSuchElementException exception) {
+
+			slf4jLogger.debug("RFQ not found");
+			pResponse.status(Constants.HTTP_BAD_REQUEST);
+			return returnMessage.getNotOkMessage("RFQ not found");
+
+		}
+
+	}
+
+	public static Object update(Request pRequest, Response pResponse) {
+
+		int id = Integer.valueOf(pRequest.params("id"));
+
+		slf4jLogger.debug("Parameters: " + id);
+
+		BackendMessage returnMessage = new BackendMessage();
+
+		try {
+
+			ObjectMapper mapper = new ObjectMapper();
+
+			ArrayList<RequestForQuotes> newRFQ = mapper.readValue(pRequest.body(),
+					new TypeReference<ArrayList<RequestForQuotes>>() {
+					});
+
+			RequestForQuotes modified = newRFQ.iterator().next();
+
+			Key<RequestForQuotes> keys = update(id, modified);
+			ObjectId rfqId = (ObjectId) keys.getId();
+			RequestForQuotes rfq = read(rfqId);
+
+			JsonArray jArray = new JsonArray();
+			JsonObject result = new JsonObject();
+			result.addProperty("internalCode", rfq.getInternalCode());
+			result.addProperty("externalCode", rfq.getExternalCode());
+			result.addProperty("status", "Updated");
+
+			jArray.add(result);
+
+			pResponse.status(200);
+			pResponse.type("application/json");
+			return returnMessage.getOkMessage(jArray.toString());
+
+		} catch (IOException exception) {
+
+			slf4jLogger.debug(exception.getLocalizedMessage());
+			pResponse.status(Constants.HTTP_BAD_REQUEST);
+			return returnMessage.getNotOkMessage("Problem updating RFQ Information");
+
+		} catch (NoSuchElementException ex) {
+
+			slf4jLogger.debug("RFQ not found");
+			pResponse.status(Constants.HTTP_BAD_REQUEST);
+			return returnMessage.getNotOkMessage("RFQ not found");
+		}
+
+	}
+
+	private static Key<RequestForQuotes> update(int id, RequestForQuotes modified) {
+
+		datastore = NoSqlController.getInstance().getDatabase();
+
+		RequestForQuotes current = read(id);
+
+		if (current == null)
+			throw new NoSuchElementException();
+
+		current.setInternalCode(modified.getInternalCode());
+		current.setExternalCode(modified.getExternalCode());
+		current.setSender(modified.getSender());
+		current.setCompany(modified.getCompany());
+		current.setNote(modified.getNote());
+
+		return update(current);
+
+	}
+
+	public static Object updateMaterial(Request pRequest, Response pResponse) {
+
 		datastore = NoSqlController.getInstance().getDatabase();
 
 		BackendMessage returnMessage = new BackendMessage();
-		
+
+		int id = Integer.valueOf(pRequest.params("id"));
+		int orderNumber = Integer.valueOf(pRequest.params("ordernumber"));
+
+		slf4jLogger.debug("Parameters: " + id + " " + orderNumber);
+
+		Query<RequestForQuotes> query = datastore.createQuery(RequestForQuotes.class);
+		List<RequestForQuotes> result = query.field("internalCode").equal(id).asList();
+
+		pResponse.type("application/json");
+
+		try {
+
+			RequestForQuotes rfq = result.iterator().next();
+			pResponse.status(200);
+
+			Gson gson = new Gson();
+			String rfq_json = gson.toJson(rfq);
+			return returnMessage.getOkMessage(rfq_json);
+
+		} catch (NoSuchElementException exception) {
+
+			slf4jLogger.debug("RFQ not found");
+			pResponse.status(Constants.HTTP_BAD_REQUEST);
+			return returnMessage.getNotOkMessage("RFQ not found");
+
+		}
+
+	}
+
+	public static Object refreshMaterials(Request pRequest, Response pResponse) {
+
+		datastore = NoSqlController.getInstance().getDatabase();
+
+		BackendMessage returnMessage = new BackendMessage();
+
 		int id = Integer.valueOf(pRequest.params("id"));
 
 		slf4jLogger.debug("Parameters: " + id);
@@ -129,18 +258,18 @@ public class RequestForQuotesController {
 		List<RequestForQuotes> result = query.field("internalCode").equal(id).asList();
 
 		pResponse.type("application/json");
-		
+
 		try {
 
 			RequestForQuotes rfq = result.iterator().next();
 			pResponse.status(200);
-			
+
 			Gson gson = new Gson();
-			String rfq_json = gson.toJson(rfq);			
+			String rfq_json = gson.toJson(rfq);
 			return returnMessage.getOkMessage(rfq_json);
 
 		} catch (NoSuchElementException exception) {
-			
+
 			slf4jLogger.debug("RFQ not found");
 			pResponse.status(Constants.HTTP_BAD_REQUEST);
 			return returnMessage.getNotOkMessage("RFQ not found");
@@ -153,6 +282,25 @@ public class RequestForQuotesController {
 
 		datastore = NoSqlController.getInstance().getDatabase();
 		return datastore.get(RequestForQuotes.class, id);
+	}
+
+	public static RequestForQuotes read(int internalCode) {
+
+		datastore = NoSqlController.getInstance().getDatabase();
+		
+		Query<RequestForQuotes> query = datastore.createQuery(RequestForQuotes.class);
+		List<RequestForQuotes> result = query.field("internalCode").equal(internalCode).asList();
+
+		if (result.isEmpty())
+			throw new NoSuchElementException();
+
+		return result.iterator().next();
+	}
+
+	public static Key<RequestForQuotes> update(RequestForQuotes modified) {
+
+		datastore = NoSqlController.getInstance().getDatabase();
+		return datastore.save(modified);
 	}
 
 	public static UpdateResults update(RequestForQuotes rfq, UpdateOperations<RequestForQuotes> operations) {
@@ -180,7 +328,7 @@ public class RequestForQuotesController {
 		Iterator<ExtMaterials> itr = materialList.iterator();
 
 		slf4jLogger.info(String.valueOf(materialList.size()));
-		
+
 		while (itr.hasNext()) {
 
 			ExtMaterials material = itr.next();
@@ -195,7 +343,7 @@ public class RequestForQuotesController {
 		}
 
 	}
-	
+
 	private static void updateMaterialList(List<ExtMaterials> materialList) {
 
 		datastore = NoSqlController.getInstance().getDatabase();
@@ -203,7 +351,7 @@ public class RequestForQuotesController {
 		Iterator<ExtMaterials> itr = materialList.iterator();
 
 		slf4jLogger.info(String.valueOf(materialList.size()));
-		
+
 		while (itr.hasNext()) {
 
 			ExtMaterials material = itr.next();
@@ -211,16 +359,16 @@ public class RequestForQuotesController {
 			List<Materials> result = query.field("itemcode").equal(material.getItemcode()).asList();
 
 			if (!result.isEmpty()) {
-				
+
 				material.setCategory(result.get(0).getCategory());
 				material.setType(result.get(0).getType());
 				material.setDescription(result.get(0).getDescription());
 				material.setDimensions(result.get(0).getDimensions());
-				
+
 			}
-		}		
+		}
 	}
-	
+
 	public static Object quoteFinder(Request pRequest, Response pResponse) {
 
 		BackendMessage returnMessage = new BackendMessage();
@@ -237,17 +385,17 @@ public class RequestForQuotesController {
 			JsonArray result = quoteFinder(Arrays.asList(materialList));
 			pResponse.status(200);
 			return returnMessage.getOkMessage(result.toString());
-			
-		} catch (Exception exception) { 
+
+		} catch (Exception exception) {
 			slf4jLogger.info(exception.getLocalizedMessage());
 			return returnMessage.getNotOkMessage("NOT OK");
-			
+
 		}
 
 	}
 
 	private static JsonArray quoteFinder(List<ExtMaterials> materialList) {
-		
+
 		JsonArray jArray = new JsonArray();
 
 		Iterator<ExtMaterials> itr = materialList.iterator();
@@ -260,7 +408,7 @@ public class RequestForQuotesController {
 			slf4jLogger.debug("Searching in DB for item " + itemCode);
 
 			List<ExtQuotedMaterials> queryResult = ExtQuotedMaterialsController.readBy("itemcode", itemCode);
-			
+
 			if (queryResult.isEmpty()) {
 				// Material not found
 				JsonObject item_result = new JsonObject();
@@ -269,31 +417,31 @@ public class RequestForQuotesController {
 				item_result.addProperty("price", 0.0);
 				item_result.addProperty("unit", "-");
 				jArray.add(item_result);
-				
+
 			} else {
-				
-				Iterator<ExtQuotedMaterials> itrQuoted =  queryResult.iterator();
-				
-				while( itrQuoted.hasNext() ) {
-	
+
+				Iterator<ExtQuotedMaterials> itrQuoted = queryResult.iterator();
+
+				while (itrQuoted.hasNext()) {
+
 					ExtQuotedMaterials quotedMaterial = itrQuoted.next();
-					
-					JsonObject item_result = new JsonObject();					
+
+					JsonObject item_result = new JsonObject();
 					// Material found - there should be only one
 					item_result.addProperty("itemcode", quotedMaterial.getItemcode());
 					item_result.addProperty("project", quotedMaterial.getProjectId());
 					item_result.addProperty("price", quotedMaterial.getUnitPrice());
 					item_result.addProperty("unit", quotedMaterial.getUnit());
 					jArray.add(item_result);
-				
+
 				}
-								
+
 			}
 
 		}
-			
+
 		return jArray;
-	
+
 	}
 
 }
