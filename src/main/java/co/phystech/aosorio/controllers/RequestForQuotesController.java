@@ -51,7 +51,7 @@ public class RequestForQuotesController {
 		BackendMessage returnMessage = new BackendMessage();
 
 		pResponse.type("application/json");
-
+	
 		try {
 
 			slf4jLogger.info(pRequest.body());
@@ -61,8 +61,17 @@ public class RequestForQuotesController {
 			RequestForQuotes newRFQ = mapper.readValue(pRequest.body(), RequestForQuotes.class);
 
 			create(newRFQ);
+			
+			JsonArray jArray = new JsonArray();
+			JsonObject result = new JsonObject();
+			result.addProperty("internalCode", newRFQ.getInternalCode());
+			result.addProperty("externalCode", newRFQ.getExternalCode());
+			result.addProperty("status", "Added");
+			jArray.add(result);
+			
 			pResponse.status(200);
-			return returnMessage.getOkMessage("RFQ Added");
+			pResponse.type("application/json");
+			return returnMessage.getOkMessage(jArray.toString());
 
 		} catch (IOException exception) {
 
@@ -204,7 +213,9 @@ public class RequestForQuotesController {
 		current.setSender(modified.getSender());
 		current.setCompany(modified.getCompany());
 		current.setNote(modified.getNote());
-
+		
+		current.setMaterialList(modified.getMaterialList());
+		
 		return update(current);
 
 	}
