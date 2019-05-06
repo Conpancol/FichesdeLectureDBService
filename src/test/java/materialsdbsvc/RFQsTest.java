@@ -121,9 +121,13 @@ public class RFQsTest {
 		
 			slf4jLogger.info(rfq.getId().toString());
 		
-			assertEquals(1234, rfq.getInternalCode());
 			assertEquals(1, result.size());
-				
+			
+			assertEquals(1234, rfq.getInternalCode());
+			assertEquals(7890, rfq.getExternalCode());
+			assertEquals("aosorio", rfq.getUser());
+			assertEquals("Material para proyecto Serpentines", rfq.getNote());
+		
 			RequestForQuotesController.delete(result.iterator().next());
 			
 		}

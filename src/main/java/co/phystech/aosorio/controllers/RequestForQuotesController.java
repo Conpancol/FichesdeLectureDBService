@@ -13,7 +13,9 @@ import java.util.NoSuchElementException;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Key;
+import org.mongodb.morphia.aggregation.Group;
 import org.mongodb.morphia.query.Query;
+import org.mongodb.morphia.query.Sort;
 import org.mongodb.morphia.query.UpdateOperations;
 import org.mongodb.morphia.query.UpdateResults;
 import org.slf4j.Logger;
@@ -51,7 +53,7 @@ public class RequestForQuotesController {
 		BackendMessage returnMessage = new BackendMessage();
 
 		pResponse.type("application/json");
-	
+
 		try {
 
 			slf4jLogger.info(pRequest.body());
@@ -61,14 +63,14 @@ public class RequestForQuotesController {
 			RequestForQuotes newRFQ = mapper.readValue(pRequest.body(), RequestForQuotes.class);
 
 			create(newRFQ);
-			
+
 			JsonArray jArray = new JsonArray();
 			JsonObject result = new JsonObject();
 			result.addProperty("internalCode", newRFQ.getInternalCode());
 			result.addProperty("externalCode", newRFQ.getExternalCode());
 			result.addProperty("status", "Added");
 			jArray.add(result);
-			
+
 			pResponse.status(200);
 			pResponse.type("application/json");
 			return returnMessage.getOkMessage(jArray.toString());
@@ -199,7 +201,7 @@ public class RequestForQuotesController {
 
 	}
 
-	private static Key<RequestForQuotes> update(int id, RequestForQuotes modified) {
+	private static Key<RequestForQuotes> update(int id, RequestForQuotes modified) throws NoSuchElementException {
 
 		datastore = NoSqlController.getInstance().getDatabase();
 
@@ -213,9 +215,9 @@ public class RequestForQuotesController {
 		current.setSender(modified.getSender());
 		current.setCompany(modified.getCompany());
 		current.setNote(modified.getNote());
-		
+
 		current.setMaterialList(modified.getMaterialList());
-		
+
 		return update(current);
 
 	}
@@ -229,8 +231,21 @@ public class RequestForQuotesController {
 		BackendMessage returnMessage = new BackendMessage();
 
 		try {
+			Key<RequestForQuotes> keys = refreshMaterials(id);
+			ObjectId rfqId = (ObjectId) keys.getId();
+			RequestForQuotes rfq = read(rfqId);
 
-			return returnMessage.getOkMessage("");
+			JsonArray jArray = new JsonArray();
+			JsonObject result = new JsonObject();
+			result.addProperty("internalCode", rfq.getInternalCode());
+			result.addProperty("externalCode", rfq.getExternalCode());
+			result.addProperty("status", "Updated");
+
+			jArray.add(result);
+
+			pResponse.status(200);
+			pResponse.type("application/json");
+			return returnMessage.getOkMessage(jArray.toString());
 
 		} catch (NoSuchElementException exception) {
 
@@ -239,6 +254,44 @@ public class RequestForQuotesController {
 			return returnMessage.getNotOkMessage("RFQ not found");
 
 		}
+
+	}
+
+	private static Key<RequestForQuotes> refreshMaterials(int id) throws NoSuchElementException {
+
+		datastore = NoSqlController.getInstance().getDatabase();
+
+		RequestForQuotes current = read(id);
+
+		if (current == null)
+			throw new NoSuchElementException();
+
+		List<ExtMaterials> currentMaterials = current.getMaterialList();
+
+		Iterator<ExtMaterials> itrMaterial = currentMaterials.iterator();
+
+		while (itrMaterial.hasNext()) {
+
+			ExtMaterials currentMaterial = itrMaterial.next();
+
+			String itemCode = currentMaterial.getItemcode();
+			// Find material to update
+			try {
+
+				Materials material = MaterialsController.read(itemCode);
+
+				currentMaterial.setDescription(material.getDescription());
+				currentMaterial.setDimensions(material.getDimensions());
+				currentMaterial.setType(material.getType());
+				currentMaterial.setCategory(material.getCategory());
+				currentMaterial.setCode(material.getCode());
+
+			} catch (NoSuchElementException ex) {
+				continue;
+			}
+		}
+
+		return update(current);
 
 	}
 
@@ -251,7 +304,7 @@ public class RequestForQuotesController {
 	public static RequestForQuotes read(int internalCode) {
 
 		datastore = NoSqlController.getInstance().getDatabase();
-		
+
 		Query<RequestForQuotes> query = datastore.createQuery(RequestForQuotes.class);
 		List<RequestForQuotes> result = query.field("internalCode").equal(internalCode).asList();
 
@@ -259,6 +312,39 @@ public class RequestForQuotesController {
 			throw new NoSuchElementException();
 
 		return result.iterator().next();
+	}
+	
+	public static RequestForQuotes readSortByType(int internalCode) {
+
+		datastore = NoSqlController.getInstance().getDatabase();
+		
+		ArrayList<Group> groupings = new ArrayList<Group>();
+		groupings.add( Group.grouping("materialList",Group.push("materialList")) );
+		groupings.add( Group.grouping("_id", "_id"));
+		groupings.add( Group.grouping("internalCode", Group.first("internalCode")));
+		groupings.add( Group.grouping("externalCode", Group.first("externalCode")));
+		groupings.add( Group.grouping("receivedDate", Group.first("receivedDate")));
+		groupings.add( Group.grouping("processedDate", Group.first("processedDate")));
+		groupings.add( Group.grouping("user", Group.first("user")));
+		groupings.add( Group.grouping("sender", Group.first("sender")));
+		groupings.add( Group.grouping("company", Group.first("company")));
+		groupings.add( Group.grouping("note", Group.first("note")));
+		
+		Group[] groupingArray = groupings.toArray(new Group[groupings.size()]);
+						
+		Query<RequestForQuotes> query = datastore.createQuery(RequestForQuotes.class);
+		Iterator<RequestForQuotes> aggregation = datastore.createAggregation(RequestForQuotes.class)
+				.match(query.field("internalCode").equal(internalCode))
+				.unwind("materialList")
+				.sort(Sort.ascending("materialList.type"))
+				.group("_id", groupingArray)
+				.aggregate(RequestForQuotes.class);
+		
+		if (aggregation.hasNext())
+			return aggregation.next();
+		else
+			throw new NoSuchElementException();
+		
 	}
 
 	public static Key<RequestForQuotes> update(RequestForQuotes modified) {
@@ -405,6 +491,31 @@ public class RequestForQuotesController {
 		}
 
 		return jArray;
+
+	}
+	
+	public static Object analyze(Request pRequest, Response pResponse) {
+
+		int id = Integer.valueOf(pRequest.params("id"));
+
+		BackendMessage returnMessage = new BackendMessage();
+
+		try {
+
+			RequestForQuotes rfq = readSortByType(id);
+			slf4jLogger.info("RFQ analyze> total materials " + rfq.getMaterialList().size());
+			pResponse.status(200);
+			pResponse.type("application/json");
+			String resultJson = new Gson().toJson(rfq);
+			return returnMessage.getOkMessage(resultJson);
+
+		} catch (NoSuchElementException exception) {
+
+			slf4jLogger.debug("RFQ not found");
+			pResponse.status(Constants.HTTP_BAD_REQUEST);
+			return returnMessage.getNotOkMessage("RFQ not found");
+
+		}
 
 	}
 

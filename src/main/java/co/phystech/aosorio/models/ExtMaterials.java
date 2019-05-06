@@ -15,6 +15,21 @@ public class ExtMaterials extends Materials {
 	private String orderNumber;
 	private String unit;
 	private double quantity;
+		
+	public ExtMaterials() {
+		super();
+	}
+	
+	public ExtMaterials(Materials material) {
+		
+		this.setItemcode(material.getItemcode());
+		this.setDescription(material.getDescription());
+		this.setType(material.getType());
+		this.setCategory(material.getCategory());
+		this.setDimensions(material.getDimensions());
+		this.setCode(material.getCode());
+		
+	}
 	/**
 	 * @return the orderNumber
 	 */

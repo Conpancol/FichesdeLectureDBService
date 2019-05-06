@@ -60,12 +60,16 @@ public class Main {
 		post(Routes.RFQS, RequestForQuotesController::create, GeneralSvc.json());
 		
 		post(Routes.RFQS + "/:id", RequestForQuotesController::read, GeneralSvc.json());
-		
+				
 		put(Routes.RFQS + "/:id", RequestForQuotesController::update, GeneralSvc.json());
 				
-		put(Routes.RFQS + "/:id", RequestForQuotesController::refreshMaterials, GeneralSvc.json());
+		put(Routes.RFQS + "/reload/:id", RequestForQuotesController::refreshMaterials, GeneralSvc.json());
 		
 		post(Routes.RFQS + "/quotes", RequestForQuotesController::quoteFinder, GeneralSvc.json());
+		
+		get(Routes.RFQS + "/:id", RequestForQuotesController::read, GeneralSvc.json());
+		
+		get(Routes.RFQS + "/analysis/:id", RequestForQuotesController::analyze, GeneralSvc.json());
 		
 		// ... Quotes
 		
