@@ -359,9 +359,14 @@ public class Utilities {
 
 			String token = itrStr.next().replaceAll("\\s", "").replaceAll("OD", "").replaceAll("ID", "");
 			if (token.contains("MM")) {
-				double xx = Double.parseDouble(token.replace("MM", ""));
-				result.add(xx);
-				slf4jLogger.debug(String.valueOf(xx));
+				try {
+					double xx = Double.parseDouble(token.replace("MM", ""));
+					result.add(xx);
+					slf4jLogger.debug(String.valueOf(xx));
+				} catch ( NumberFormatException ex ) {
+					result.add(0.0);
+					slf4jLogger.info("parseMultipleDimensions>Error in dimension format " + token);
+				}			
 			} else {
 				double xx = parseDimension(token);
 				result.add(xx);

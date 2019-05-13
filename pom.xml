@@ -48,8 +48,7 @@
 					<jdkVersion>1.8</jdkVersion>
 					<appName>mysterious-island-54825</appName>
 					<processTypes>
-						<web>java $JAVA_OPTS -cp target/classes:target/dependency/*
-							co.phystech.aosorio.app.Main</web>
+						<web>java $JAVA_OPTS -cp target/classes:target/dependency/* co.phystech.aosorio.app.Main</web>
 					</processTypes>
 				</configuration>
 			</plugin>
