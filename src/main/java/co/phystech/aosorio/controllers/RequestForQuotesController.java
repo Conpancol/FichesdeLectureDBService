@@ -130,12 +130,12 @@ public class RequestForQuotesController {
 
 	public static Object read(Request pRequest, Response pResponse) {
 
-		int id = Integer.valueOf(pRequest.params("id"));
-
 		BackendMessage returnMessage = new BackendMessage();
 
 		try {
 
+			int id = Integer.valueOf(pRequest.params("id"));
+			
 			RequestForQuotes rfq = read(id);
 			pResponse.status(200);
 			pResponse.type("application/json");
@@ -148,19 +148,24 @@ public class RequestForQuotesController {
 			pResponse.status(Constants.HTTP_BAD_REQUEST);
 			return returnMessage.getNotOkMessage("RFQ not found");
 
+		} catch (NumberFormatException exception) {
+			
+			slf4jLogger.debug("RFQ wrong format");
+			pResponse.status(Constants.HTTP_BAD_REQUEST);
+			return returnMessage.getNotOkMessage("RFQ wrong format");
+			
 		}
 
 	}
 
 	public static Object update(Request pRequest, Response pResponse) {
 
-		int id = Integer.valueOf(pRequest.params("id"));
-
-		slf4jLogger.debug("Parameters: " + id);
-
 		BackendMessage returnMessage = new BackendMessage();
 
 		try {
+			
+			int id = Integer.valueOf(pRequest.params("id"));
+			slf4jLogger.debug("Parameters: " + id);
 
 			ObjectMapper mapper = new ObjectMapper();
 
@@ -197,6 +202,13 @@ public class RequestForQuotesController {
 			slf4jLogger.debug("RFQ not found");
 			pResponse.status(Constants.HTTP_BAD_REQUEST);
 			return returnMessage.getNotOkMessage("RFQ not found");
+		
+		} catch (NumberFormatException exception) {
+			
+			slf4jLogger.debug("RFQ wrong format");
+			pResponse.status(Constants.HTTP_BAD_REQUEST);
+			return returnMessage.getNotOkMessage("RFQ wrong format");
+			
 		}
 
 	}
@@ -224,13 +236,13 @@ public class RequestForQuotesController {
 
 	public static Object refreshMaterials(Request pRequest, Response pResponse) {
 
-		int id = Integer.valueOf(pRequest.params("id"));
-
-		slf4jLogger.debug("Parameters: " + id);
-
 		BackendMessage returnMessage = new BackendMessage();
 
 		try {
+			
+			int id = Integer.valueOf(pRequest.params("id"));
+			slf4jLogger.debug("Parameters: " + id);
+			
 			Key<RequestForQuotes> keys = refreshMaterials(id);
 			ObjectId rfqId = (ObjectId) keys.getId();
 			RequestForQuotes rfq = read(rfqId);
@@ -253,6 +265,12 @@ public class RequestForQuotesController {
 			pResponse.status(Constants.HTTP_BAD_REQUEST);
 			return returnMessage.getNotOkMessage("RFQ not found");
 
+		} catch (NumberFormatException exception) {
+			
+			slf4jLogger.debug("RFQ wrong format");
+			pResponse.status(Constants.HTTP_BAD_REQUEST);
+			return returnMessage.getNotOkMessage("RFQ wrong format");
+			
 		}
 
 	}
@@ -496,12 +514,13 @@ public class RequestForQuotesController {
 	
 	public static Object analyze(Request pRequest, Response pResponse) {
 
-		int id = Integer.valueOf(pRequest.params("id"));
-
 		BackendMessage returnMessage = new BackendMessage();
 
 		try {
-
+		
+			int id = Integer.valueOf(pRequest.params("id"));
+			slf4jLogger.info("Parameters: " + id);
+			
 			RequestForQuotes rfq = readSortByType(id);
 			slf4jLogger.info("RFQ analyze> total materials " + rfq.getMaterialList().size());
 			pResponse.status(200);
@@ -515,6 +534,12 @@ public class RequestForQuotesController {
 			pResponse.status(Constants.HTTP_BAD_REQUEST);
 			return returnMessage.getNotOkMessage("RFQ not found");
 
+		} catch (NumberFormatException exception) {
+			
+			slf4jLogger.debug("RFQ wrong format");
+			pResponse.status(Constants.HTTP_BAD_REQUEST);
+			return returnMessage.getNotOkMessage("RFQ wrong format");
+			
 		}
 
 	}
