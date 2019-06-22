@@ -180,14 +180,15 @@ public class ExtQuotedMaterialsController {
 
 		} else {
 			slf4jLogger.info("Quote found, updating material");
+			
 			// update found material with new one
-			String lastUpdate = new StringBuilder().append(result.get(0).getUpdateDate()).append(",")
-					.append(material.getUpdateDate()).toString();
+			//String lastUpdate = new StringBuilder().append(result.get(0).getUpdateDate()).append(",")
+			//		.append(material.getUpdateDate()).toString();
 
 			UpdateOperations<ExtQuotedMaterials> ops = createOperations();
 			ops.set("unitPrice", material.getUnitPrice());
 			ops.set("totalPrice", material.getTotalPrice());
-			ops.set("updateDate", lastUpdate);
+			ops.set("updateDate", material.getUpdateDate());
 
 			UpdateResults upresult = update(result.get(0), ops);
 
