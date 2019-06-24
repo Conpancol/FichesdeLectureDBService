@@ -169,9 +169,13 @@ public class ExtQuotedMaterialsController {
 
 		Query<ExtQuotedMaterials> query = datastore.createQuery(ExtQuotedMaterials.class);
 
-		List<ExtQuotedMaterials> result = query.field("providerId").equal(material.getProviderId()).field("itemcode")
-				.equal(material.getItemcode()).field("quantity").equal(material.getQuantity()).field("revision")
-				.equal(material.getRevision()).asList();
+		List<ExtQuotedMaterials> result = query.field("providerId").equal(material.getProviderId())
+				.field("itemcode").equal(material.getItemcode())
+				.field("quantity").equal(material.getQuantity())
+				.field("orderNumber").equal(material.getOrderNumber())
+				.field("updateDate").equal(material.getUpdateDate())
+				.field("projectId").equal(material.getProjectId())
+				.field("revision").equal(material.getRevision()).asList();
 
 		if (result.isEmpty()) {
 			slf4jLogger.debug("Quote not found, saving new extended material");
