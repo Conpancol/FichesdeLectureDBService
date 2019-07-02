@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.bson.types.ObjectId;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Key;
 import org.mongodb.morphia.query.Query;
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mongodb.WriteResult;
@@ -110,7 +112,88 @@ public class ExtQuotedMaterialsController {
 		}
 
 	}
+	
+	public static Object read(Request pRequest, Response pResponse) {
 
+		BackendMessage returnMessage = new BackendMessage();
+		pResponse.type("application/json");
+
+		try {
+
+			String id = pRequest.params("id");
+			slf4jLogger.info("Parameters: " + id);
+
+			ExtQuotedMaterials quote = read(id);
+			pResponse.status(200);
+			pResponse.type("application/json");
+			String resultJson = new Gson().toJson(quote);
+			return returnMessage.getOkMessage(resultJson);
+
+		} catch (NoSuchElementException jpe) {
+			
+			slf4jLogger.debug("QUOTED material not found");
+			pResponse.status(Constants.HTTP_BAD_REQUEST);
+			return returnMessage.getNotOkMessage("QUOTED material not found");
+
+		}
+
+	}
+
+	public static Object update(Request pRequest, Response pResponse) {
+
+		BackendMessage returnMessage = new BackendMessage();
+				
+		pResponse.type("application/json");
+
+		try {
+
+			slf4jLogger.info(pRequest.body());
+
+			ObjectMapper mapper = new ObjectMapper();
+			
+			String id = pRequest.params("id");
+			slf4jLogger.info("Parameters: " + id);
+			
+			ArrayList<ExtQuotedMaterials> newQuote = mapper.readValue(pRequest.body(),
+					new TypeReference<ArrayList<ExtQuotedMaterials>>(){
+					});
+			
+			slf4jLogger.info("data: " + newQuote.toString());
+			
+			ExtQuotedMaterials modified = newQuote.iterator().next();
+
+			Key<ExtQuotedMaterials> keys = update(id, modified);
+			ObjectId quoteId = (ObjectId) keys.getId();
+			ExtQuotedMaterials quote = read(quoteId);
+			
+			JsonArray jArray = new JsonArray();
+			JsonObject result = new JsonObject();
+			result.addProperty("itemcode", quote.getItemcode());
+			result.addProperty("projectId", quote.getProjectId());
+			result.addProperty("status", "Updated");
+			jArray.add(result);
+						
+			pResponse.status(200);
+			return returnMessage.getOkMessage(jArray.toString());
+
+		} catch (IOException exception) {
+
+			slf4jLogger.info(exception.getLocalizedMessage());
+			pResponse.status(Constants.HTTP_BAD_REQUEST);
+						
+			return returnMessage.getNotOkMessage("Problem updating QUOTE");
+			
+		} catch (NoSuchElementException exception) {
+
+			slf4jLogger.info(exception.getLocalizedMessage());
+			pResponse.status(Constants.HTTP_BAD_REQUEST);
+			
+			return returnMessage.getNotOkMessage("ITEM not found in DB");
+
+		}
+
+	}
+	
 	public static ArrayList<Result> create(ArrayList<ExtQuotedMaterials> newMaterials) {
 
 		datastore = NoSqlController.getInstance().getDatabase();
@@ -218,12 +301,57 @@ public class ExtQuotedMaterialsController {
 		return false;
 	}
 
+	public static ExtQuotedMaterials read(ObjectId id) {
+
+		datastore = NoSqlController.getInstance().getDatabase();
+	
+		return datastore.get(ExtQuotedMaterials.class, id);
+	
+	}
+	
+	public static ExtQuotedMaterials read(String itemcode) {
+
+		datastore = NoSqlController.getInstance().getDatabase();
+		
+		Query<ExtQuotedMaterials> query = datastore.createQuery(ExtQuotedMaterials.class);
+		List<ExtQuotedMaterials> result = query.field("itemcode").equal(itemcode).asList();
+		
+		if (result.isEmpty())
+			throw new NoSuchElementException();
+
+		return result.iterator().next();
+		
+	}
+	
 	public static WriteResult delete(ExtQuotedMaterials material) {
 
 		datastore = NoSqlController.getInstance().getDatabase();
 		return datastore.delete(material);
 	}
 
+	private static Key<ExtQuotedMaterials> update(String id, ExtQuotedMaterials modified) throws NoSuchElementException {
+
+		datastore = NoSqlController.getInstance().getDatabase();
+
+		ExtQuotedMaterials current = read(id);
+
+		if (current == null)
+			throw new NoSuchElementException();
+
+		current.setUnitPrice(modified.getUnitPrice());
+		current.setTotalPrice(modified.getTotalPrice());
+		current.setRevision(modified.getRevision());
+        
+		return update(current);
+
+	}
+	
+	public static Key<ExtQuotedMaterials> update(ExtQuotedMaterials modified) {
+
+		datastore = NoSqlController.getInstance().getDatabase();
+		return datastore.save(modified);
+	}
+	
 	private static UpdateResults update(ExtQuotedMaterials material, UpdateOperations<ExtQuotedMaterials> operations) {
 		return datastore.update(material, operations);
 	}

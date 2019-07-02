@@ -3,9 +3,7 @@
  */
 package co.phystech.aosorio.models;
 
-import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.Entity;
-import org.mongodb.morphia.annotations.Id;
 
 /**
  * @author AOSORIO
@@ -15,8 +13,8 @@ import org.mongodb.morphia.annotations.Id;
 @Entity("qmaterials")
 public class ExtQuotedMaterials extends QuotedMaterials {
 
-	@Id
-	private ObjectId id;
+	//@Id
+	//private ObjectId id;
 
 	private String providerId;
 	private String providerName;
@@ -47,20 +45,6 @@ public class ExtQuotedMaterials extends QuotedMaterials {
 		this.setCountryOrigin(material.getCountryOrigin());
 		this.setNote(material.getNote());
 				
-	}
-
-	/**
-	 * @return the id
-	 */
-	public ObjectId getId() {
-		return id;
-	}
-
-	/**
-	 * @param id the id to set
-	 */
-	public void setId(ObjectId id) {
-		this.id = id;
 	}
 
 	/**

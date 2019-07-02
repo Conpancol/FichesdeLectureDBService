@@ -75,10 +75,18 @@ public class Main {
 		// ... Quotes
 		
 		post(Routes.QUOTES, QuotesController::create, GeneralSvc.json());
+			
+		//... Quote editor
+		post(Routes.QUOTES + "/:id", QuotesController::read, GeneralSvc.json());
+		
+		put(Routes.QUOTES + "/:id", QuotesController::update, GeneralSvc.json());
 		
 		post(Routes.QUOTES + "/materials", ExtQuotedMaterialsController::create, GeneralSvc.json());
 		
-		get(Routes.QUOTES + "/:id", QuotesController::read, GeneralSvc.json());
+		//... Quoted materials editor
+		post(Routes.QUOTES + "/materials/:id", ExtQuotedMaterialsController::read, GeneralSvc.json());
+		
+		put(Routes.QUOTES + "/materials/:id", ExtQuotedMaterialsController::update, GeneralSvc.json());
 		
 		// ... Providers
 		
