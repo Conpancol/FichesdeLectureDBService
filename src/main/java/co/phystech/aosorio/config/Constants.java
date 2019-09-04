@@ -30,7 +30,7 @@ public class Constants {
 	public static final String[] FITTING_STUBENDS = {"STUB-END,SHORT LENGTH,SL"};
 	public static final String[] FITTING_CAPS = {"CAP,END-CAP"};
 
-	public static final Integer PROVIDERS_ID_OFFSET = 1000;
+	public static final Integer PROVIDERS_ID_OFFSET = 10000;
 	
 	
 }

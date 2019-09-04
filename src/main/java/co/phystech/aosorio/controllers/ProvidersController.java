@@ -64,19 +64,19 @@ public class ProvidersController {
 
 		} catch (IOException exception) {
 
-			slf4jLogger.debug(exception.getLocalizedMessage());
+			slf4jLogger.info(exception.getLocalizedMessage());
 			pResponse.status(Constants.HTTP_BAD_REQUEST);
 			return returnMessage.getNotOkMessage("Problem adding Provider");
 
 		} catch (AlreadyExistsException exception) {
 
-			slf4jLogger.debug(exception.getLocalizedMessage());
+			slf4jLogger.info(exception.getLocalizedMessage());
 			pResponse.status(Constants.HTTP_BAD_REQUEST);
 			return returnMessage.getNotOkMessage("Provider already exists");
 
 		} catch (NoSuchElementException exception) {
 
-			slf4jLogger.debug(exception.getLocalizedMessage());
+			slf4jLogger.info(exception.getLocalizedMessage());
 			pResponse.status(Constants.HTTP_BAD_REQUEST);
 			return returnMessage.getNotOkMessage("Item in Provider not in DB");
 

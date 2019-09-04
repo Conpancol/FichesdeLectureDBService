@@ -144,5 +144,18 @@ public class Providers extends Contacts {
 		this.comments = comments;
 	}
 	
+	/**
+	 * @return the procurementCodes
+	 */
+	public List<ProcurementCodes> getProcurementCodes() {
+		return procurementCodes;
+	}
+
+	/**
+	 * @param procurementCodes the procurementCodes to set
+	 */
+	public void setProcurementCodes(List<ProcurementCodes> procurementCodes) {
+		this.procurementCodes = procurementCodes;
+	}
 
 }
