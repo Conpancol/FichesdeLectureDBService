@@ -94,6 +94,8 @@ public class Main {
 					
 		get(Routes.PROVIDERS, ProvidersController::readAll, GeneralSvc.json());
 		
+		get(Routes.PROVIDERS + "/short", ProvidersController::readAllShort, GeneralSvc.json());
+		
 		post(Routes.PROVIDERS + "/:id", ProvidersController::read, GeneralSvc.json());
 		
 		put(Routes.PROVIDERS + "/:id", ProvidersController::update, GeneralSvc.json());

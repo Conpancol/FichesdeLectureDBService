@@ -165,9 +165,7 @@ public class ProvidersController {
 		BackendMessage returnMessage = new BackendMessage();
 
 		try {
-
-			Providers provider = result.iterator().next();
-			String resultJson = new Gson().toJson(provider);
+			String resultJson = new Gson().toJson(result);
 			pResponse.status(200);
 			pResponse.type("application/json");
 			return returnMessage.getOkMessage(resultJson);
@@ -196,6 +194,44 @@ public class ProvidersController {
 			pResponse.status(200);
 			pResponse.type("application/json");
 			return returnMessage.getOkMessage(resultJson);
+
+		} catch (NoSuchElementException ex) {
+
+			slf4jLogger.debug("Provider not found");
+			pResponse.status(Constants.HTTP_BAD_REQUEST);
+			return returnMessage.getNotOkMessage("Provider not found");
+
+		}
+
+	}
+
+	public static Object readAllShort(Request pRequest, Response pResponse) {
+
+		datastore = NoSqlController.getInstance().getDatabase();
+
+		Query<Providers> query = datastore.find(Providers.class);
+		List<Providers> result = query.asList();
+
+		JsonArray jArray = new JsonArray();
+
+		Iterator<Providers> itrProviders = result.iterator();
+
+		while (itrProviders.hasNext()) {
+
+			Providers pv = itrProviders.next();
+			JsonObject providerInfo = new JsonObject();
+			providerInfo.addProperty("providerId", pv.getProviderId());
+			providerInfo.addProperty("name", pv.getName());
+			jArray.add(providerInfo);
+		}
+
+		BackendMessage returnMessage = new BackendMessage();
+
+		try {
+
+			pResponse.status(200);
+			pResponse.type("application/json");
+			return returnMessage.getOkMessage(jArray.toString());
 
 		} catch (NoSuchElementException ex) {
 
@@ -238,19 +274,19 @@ public class ProvidersController {
 			result.addProperty("providerId", keys.getId().toString());
 			result.addProperty("name", modified.getName());
 			result.addProperty("status", "Updated");
-			
+
 			jArray.add(result);
-			
+
 			pResponse.status(200);
 			pResponse.type("application/json");
 			return returnMessage.getOkMessage(jArray.toString());
 
 		} catch (IOException exception) {
 
-				slf4jLogger.debug(exception.getLocalizedMessage());
-				pResponse.status(Constants.HTTP_BAD_REQUEST);
-				return returnMessage.getNotOkMessage("Problem updating Provider");
-			
+			slf4jLogger.debug(exception.getLocalizedMessage());
+			pResponse.status(Constants.HTTP_BAD_REQUEST);
+			return returnMessage.getNotOkMessage("Problem updating Provider");
+
 		} catch (NoSuchElementException ex) {
 
 			slf4jLogger.debug("Provider not found");
@@ -258,7 +294,6 @@ public class ProvidersController {
 			return returnMessage.getNotOkMessage("Provider not found");
 		}
 
-		
 	}
 
 	private static Key<Providers> update(String id, Providers modified) throws NoSuchElementException {
@@ -348,10 +383,10 @@ public class ProvidersController {
 
 			ObjectMapper mapper = new ObjectMapper();
 
-			Comments newComment = mapper.readValue(pRequest.body(),Comments.class);
-		
+			Comments newComment = mapper.readValue(pRequest.body(), Comments.class);
+
 			JsonArray result = addComment(id, newComment);
-			
+
 			pResponse.status(200);
 			pResponse.type("application/json");
 			return returnMessage.getOkMessage(result.toString());
@@ -361,7 +396,7 @@ public class ProvidersController {
 			slf4jLogger.debug(exception.getLocalizedMessage());
 			pResponse.status(Constants.HTTP_BAD_REQUEST);
 			return returnMessage.getNotOkMessage("Problem adding comment to provider");
-					
+
 		} catch (NoSuchElementException ex) {
 
 			slf4jLogger.debug("Provider not found");
@@ -371,37 +406,36 @@ public class ProvidersController {
 		}
 
 	}
-	
-	public static JsonArray addComment(String id, Comments comment) throws NoSuchElementException { 
-		
+
+	public static JsonArray addComment(String id, Comments comment) throws NoSuchElementException {
+
 		JsonArray jArray = new JsonArray();
-	
+
 		Providers provider = read(id);
-		
-		if( provider == null) 
+
+		if (provider == null)
 			throw new NoSuchElementException();
-		
+
 		List<Comments> comments = provider.getComments();
-		
-		if (comments == null )
+
+		if (comments == null)
 			comments = new ArrayList<Comments>();
-		
+
 		comments.add(comment);
-		
+
 		provider.setComments(comments);
-		
+
 		Key<Providers> key = create(provider);
-		
+
 		JsonObject result = new JsonObject();
 		result.addProperty("providerId", key.getId().toString());
 		result.addProperty("name", provider.getName());
 		result.addProperty("status", "Comment added");
-		
+
 		jArray.add(result);
-		
+
 		return jArray;
-		
-		
+
 	}
 
 }
